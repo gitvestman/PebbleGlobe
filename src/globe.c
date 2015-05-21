@@ -19,7 +19,7 @@ static int yres = 0;
 #define DRAW_COLOR_PIXEL( framebuffer, x, y, color ) \
       (gbitmap_get_data(framebuffer)[y*gbitmap_get_bytes_per_row(framebuffer) + x] = color);
 
-static int32_t arccos[61];
+static int32_t arccos[81];
 
 static void init_arccos() {
   for (int a = 0; a < 16384; a+=91) {
@@ -81,6 +81,40 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   //time_ms(&seconds2, &ms2);
   //int diff = (seconds2 - seconds2) * 1000 + (ms2 - ms1);
   //APP_LOG(APP_LOG_LEVEL_INFO, "Redering time %d", diff);
+}
+
+static int animation_start = 0;
+static Animation* s_globe_animation;
+#define ANIMATION_DURATION 5000
+
+static void anim_started_handler(Animation* anim, void* context) {
+  animation_start = globelong;
+}
+
+static void anim_stopped_handler(Animation* anim, bool finished, void* context) {
+  animation_destroy(anim);
+}
+
+static void anim_update_handler(Animation* anim, AnimationProgress progress) {
+  globelong = animation_start + 450 * progress / ANIMATION_NORMALIZED_MAX;
+  if (globelong > 360) globelong -= 360;
+  layer_mark_dirty(s_simple_bg_layer);
+}
+
+static AnimationImplementation spin_animation = {
+   .update = anim_update_handler
+};
+
+void spin_globe() {
+  s_globe_animation = animation_create();
+  animation_set_duration((Animation*)s_globe_animation, ANIMATION_DURATION);
+  animation_set_curve((Animation*)s_globe_animation, AnimationCurveEaseOut);
+  animation_set_handlers((Animation*)s_globe_animation, (AnimationHandlers) {
+    .started = anim_started_handler,
+    .stopped = anim_stopped_handler
+  }, NULL);
+  animation_set_implementation((Animation*)s_globe_animation, &spin_animation);
+  animation_schedule((Animation*)s_globe_animation);
 }
 
 void init_globe(Window *window) {
