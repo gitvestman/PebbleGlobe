@@ -1,5 +1,5 @@
 #include <pebble.h>
-#include "time.h"
+#include "clock.h"
 
 static TextLayer *s_time_layer;
 static TextLayer *s_date_layer;

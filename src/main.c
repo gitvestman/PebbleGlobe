@@ -1,5 +1,5 @@
 #include <pebble.h>
-#include "time.h"
+#include "clock.h"
 #include "math.h"
 #include "globe.h"
 
