@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "globe.h"
 
+
 static GBitmap *s_background_bitmap;
 static Layer *s_simple_bg_layer;
 static uint8_t* raw_bitmap_data;
@@ -9,6 +10,14 @@ static int globeradiusx2 = 3600;
 static int globecenterx, globecentery;
 static int globelong = 90;
 static int globelat = -10;
+static int xres = 0;
+static int yres = 0;
+
+#define DRAW_BW_PIXEL( framebuffer, x, y, color ) \
+      (((uint8_t*)(framebuffer->addr))[y*framebuffer->row_size_bytes + x / 8] |= ((color) << (x % 8)));
+
+#define DRAW_COLOR_PIXEL( framebuffer, x, y, color ) \
+      (gbitmap_get_data(framebuffer)[y*gbitmap_get_bytes_per_row(framebuffer) + x] = color);
 
 static int32_t arccos[61];
 
@@ -20,16 +29,17 @@ static void init_arccos() {
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
-  time_t seconds1, seconds2;
-  uint16_t ms1, ms2;
+  //time_t seconds1, seconds2;
+  //uint16_t ms1, ms2;
     
-  time_ms(&seconds1, &ms1);
+  //time_ms(&seconds1, &ms1);
   globelong += 1;
   
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
   GRect bounds = layer_get_bounds(layer);
   graphics_context_set_stroke_color(ctx, GColorWhite);
+  GBitmap *framebuffer = graphics_capture_frame_buffer(ctx);
   
   for (int y = 0; y < bounds.size.h; y++) {
     bool firstx = false;
@@ -57,22 +67,20 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 #ifdef PBL_COLOR
         uint8_t pixel = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2];
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
-        graphics_draw_pixel(ctx, GPoint(x, y));
+        DRAW_COLOR_PIXEL(framebuffer, x, y, pixel);
 #else        
         uint8_t byte = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2 / 8];
         uint8_t pixel = (byte >> ((latitude/2 * bitmapwidth + longitude / 2) % 8)) & 1;
-        if (y == globecentery && x % 10 == 0) {
-          APP_LOG(APP_LOG_LEVEL_INFO, "x = %d, y = %d, longitude = %d, latitude = %d, width = %d", x, y, longitude, latitude, bitmapwidth);
-        }
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
-        graphics_draw_pixel(ctx, GPoint(x, y));
+        DRAW_BW_PIXEL(framebuffer, x, y, pixel);
 #endif
       }
     }
   }
-  time_ms(&seconds2, &ms2);
-  int diff = (seconds2 - seconds2) * 1000 + (ms2 - ms1);
-  APP_LOG(APP_LOG_LEVEL_INFO, "Redering time %d", diff);
+  graphics_release_frame_buffer(ctx, framebuffer);
+  //time_ms(&seconds2, &ms2);
+  //int diff = (seconds2 - seconds2) * 1000 + (ms2 - ms1);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "Redering time %d", diff);
 }
 
 void init_globe(Window *window) {
@@ -82,6 +90,8 @@ void init_globe(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2 + 10;
+  xres = bounds.size.w;
+  yres = bounds.size.h;
   // Create GBitmap, then set to created BitmapLayer
   s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GLOBE);
   int bytes = gbitmap_get_bytes_per_row(s_background_bitmap);
