@@ -53,10 +53,20 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
         if (latitude > 180) { latitude = 180-latitude; longitude += 180; }
         if (longitude < 0) longitude += 360;
         if (longitude > 360) longitude -= 360;
-
-        uint8_t pixel = raw_bitmap_data[latitude/2 * 180 + longitude / 2];
+        int bitmapwidth = gbitmap_get_bytes_per_row(s_background_bitmap);
+#ifdef PBL_COLOR
+        uint8_t pixel = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2];
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
         graphics_draw_pixel(ctx, GPoint(x, y));
+#else        
+        uint8_t byte = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2 / 8];
+        uint8_t pixel = (byte >> ((latitude/2 * bitmapwidth + longitude / 2) % 8)) & 1;
+        if (y == globecentery && x % 10 == 0) {
+          APP_LOG(APP_LOG_LEVEL_INFO, "x = %d, y = %d, longitude = %d, latitude = %d, width = %d", x, y, longitude, latitude, bitmapwidth);
+        }
+        graphics_context_set_stroke_color(ctx, (GColor)pixel);
+        graphics_draw_pixel(ctx, GPoint(x, y));
+#endif
       }
     }
   }

@@ -17,12 +17,12 @@ void init_time(Window *window) {
   // Create time textlayer
   s_time_layer = text_layer_create(GRect(2,2,110,45));
   text_layer_set_background_color(s_time_layer, GColorClear);
-  text_layer_set_text_color(s_time_layer, GColorWhite);
+  text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create time textlayer
   s_date_layer = text_layer_create(GRect(40,130,100,45));
   text_layer_set_background_color(s_date_layer, GColorClear);
-  text_layer_set_text_color(s_date_layer, GColorWhite);
+  text_layer_set_text_color(s_date_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create Fonts
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
