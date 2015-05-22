@@ -86,6 +86,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 static int animation_start = 0;
 static Animation* s_globe_animation;
 #define ANIMATION_DURATION 5000
+#define ANIMATION_INITIAL_DELAY 500
 
 static void anim_started_handler(Animation* anim, void* context) {
   animation_start = globelong;
@@ -105,10 +106,11 @@ static AnimationImplementation spin_animation = {
    .update = anim_update_handler
 };
 
-void spin_globe() {
+void spin_globe(int delay) {
   s_globe_animation = animation_create();
+  animation_set_delay((Animation*)s_globe_animation, delay);
   animation_set_duration((Animation*)s_globe_animation, ANIMATION_DURATION);
-  animation_set_curve((Animation*)s_globe_animation, AnimationCurveEaseOut);
+  animation_set_curve((Animation*)s_globe_animation, delay != 0 ? AnimationCurveEaseInOut : AnimationCurveEaseOut);
   animation_set_handlers((Animation*)s_globe_animation, (AnimationHandlers) {
     .started = anim_started_handler,
     .stopped = anim_stopped_handler
@@ -137,6 +139,7 @@ void init_globe(Window *window) {
   s_simple_bg_layer = layer_create(bounds);
   layer_set_update_proc(s_simple_bg_layer, bg_update_proc);
   layer_add_child(window_get_root_layer(window), s_simple_bg_layer);
+  spin_globe(ANIMATION_INITIAL_DELAY);
 }
 
 void destroy_globe() {

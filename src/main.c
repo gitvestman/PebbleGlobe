@@ -17,7 +17,7 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   }
   
   last_tap = seconds;
-  spin_globe();
+  spin_globe(0);
 }
 
 static void main_window_load(Window *window) {    
