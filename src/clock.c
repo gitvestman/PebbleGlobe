@@ -49,7 +49,7 @@ void update_time() {
     // use 24 hour format  
     strftime(timebuffer, sizeof(timebuffer), "%H:%M", tick_time);
   } else {
-    strftime(timebuffer, sizeof(timebuffer), "%I, %M", tick_time);
+    strftime(timebuffer, sizeof(timebuffer), "%I:%M", tick_time);
   }  
   strftime(datebuffer, sizeof(datebuffer), "%a %e", tick_time);
 
