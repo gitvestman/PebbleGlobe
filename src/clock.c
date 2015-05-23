@@ -15,7 +15,7 @@ void init_time(Window *window) {
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
   
   // Create time textlayer
-  s_time_layer = text_layer_create(GRect(2,2,120,45));
+  s_time_layer = text_layer_create(GRect(2,2,130,45));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
@@ -50,7 +50,7 @@ void update_time() {
     strftime(timebuffer, sizeof(timebuffer), "%H:%M", tick_time);
   } else {
     strftime(timebuffer, sizeof(timebuffer), "%I:%M", tick_time);
-  }  
+  }
   strftime(datebuffer, sizeof(datebuffer), "%a %e", tick_time);
 
   // Display the time and date
