@@ -22,6 +22,7 @@ static int yres = 0;
 static int32_t arccos[81];
 
 static void init_arccos() {
+  // 0 to 90 deegreed in 0.5 degree steps
   for (int a = 0; a < 16384; a+=91) {
     int32_t x = (32768 + cos_lookup(a) * globeradius) / 65536;
     arccos[x] = (a + 90) / 182;
@@ -34,6 +35,8 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
     
   //time_ms(&seconds1, &ms1);
   globelong += 1;
+  if (globelong >= 360) globelong -= 360;
+  if (globelong < 0) globelong += 360;
   
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
@@ -62,15 +65,17 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
         if (latitude < 0) { latitude = -latitude; longitude += 180; }
         if (latitude > 180) { latitude = 180-latitude; longitude += 180; }
         if (longitude < 0) longitude += 360;
-        if (longitude > 360) longitude -= 360;
+        if (longitude >= 360) longitude %= 360;
+        
         int bitmapwidth = gbitmap_get_bytes_per_row(s_background_bitmap);
+        uint16_t byteposition = latitude/2 * bitmapwidth + longitude / 2;
 #ifdef PBL_COLOR
-        uint8_t pixel = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2];
+        uint8_t pixel = raw_bitmap_data[byteposition];
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
         DRAW_COLOR_PIXEL(framebuffer, x, y, pixel);
 #else        
         uint8_t byte = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2 / 8];
-        uint8_t pixel = (byte >> ((latitude/2 * bitmapwidth + longitude / 2) % 8)) & 1;
+        uint8_t pixel = (byte >> (byteposition % 8)) & 1;
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
         DRAW_BW_PIXEL(framebuffer, x, y, pixel);
 #endif
@@ -98,7 +103,7 @@ static void anim_stopped_handler(Animation* anim, bool finished, void* context) 
 
 static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = animation_start + 450 * progress / ANIMATION_NORMALIZED_MAX;
-  if (globelong > 360) globelong -= 360;
+  if (globelong >= 360) globelong -= 360;
   layer_mark_dirty(s_simple_bg_layer);
 }
 
