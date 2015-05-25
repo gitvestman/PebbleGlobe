@@ -7,9 +7,25 @@ static TextLayer *s_time_shadow_layer;
 static TextLayer *s_date_shadow_layer;
 static GFont s_time_font;
 static GFont s_date_font;
+static long tick_count = 0;
+
+// Change to minute ticking after a while to save battery
+#define MAX_SECOND_TICKS 100
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
+  tick_count++;
+  if (tick_count == MAX_SECOND_TICKS && units_changed == SECOND_UNIT) {
+    tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  }
+}
+
+void reset_ticks() {
+  BatteryChargeState charge = battery_state_service_peek();
+  if (charge.is_charging || charge.charge_percent > 20) {
+    tick_count = 0;
+    tick_timer_service_subscribe(SECOND_UNIT, tick_handler);    
+  }
 }
 
 void init_time(Window *window) {
@@ -17,12 +33,12 @@ void init_time(Window *window) {
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
   
   // Create time textlayer
-  s_time_layer = text_layer_create(GRect(2,2,130,45));
+  s_time_layer = text_layer_create(GRect(2,0,130,45));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create time shadow textlayer
-  s_time_shadow_layer = text_layer_create(GRect(1,3,130,45));
+  s_time_shadow_layer = text_layer_create(GRect(1,1,130,45));
   text_layer_set_background_color(s_time_shadow_layer, GColorClear);
   text_layer_set_text_color(s_time_shadow_layer, GColorBlack);
 

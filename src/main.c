@@ -2,6 +2,7 @@
 #include "clock.h"
 #include "math.h"
 #include "globe.h"
+#include "battery.h"
 
 Window *main_window;
 
@@ -18,17 +19,20 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   
   last_tap = seconds;
   spin_globe(0);
+  reset_ticks();
 }
 
 static void main_window_load(Window *window) {    
   init_globe(main_window);
   init_time(main_window);
+  init_battery(main_window);
   update_time();
 }
 
 static void main_window_unload(Window *window) {
   destroy_globe();
   destroy_time();
+  destroy_battery();
 }
 
 void handle_init(void) {
