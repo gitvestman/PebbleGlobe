@@ -1,6 +1,10 @@
 #include <pebble.h>
 #include "globe.h"
 
+#define FIXED_360_DEG 0x10000
+#define FIXED_360_DEG_SHIFT 16
+#define FIXED_180_DEG 0x8000
+#define FIXED_90_DEG 0x4000
 
 static GBitmap *s_background_bitmap;
 static Layer *s_simple_bg_layer;
@@ -8,8 +12,8 @@ static uint8_t* raw_bitmap_data;
 static int globeradius = 60;
 static int globeradiusx2 = 3600;
 static int globecenterx, globecentery;
-static int globelong = 90;
-static int globelat = -10;
+static uint16_t globelong = 90;
+static int globelat = -0x1000;
 static int xres = 0;
 static int yres = 0;
 static int animation_direction = 1;
@@ -24,10 +28,24 @@ static int32_t arccos[81];
 
 static void init_arccos() {
   // 0 to 90 deegreed in 0.5 degree steps
-  for (int a = 0; a < 0x4000; a+=91) {
-    int32_t x = (0x8000 + cos_lookup(a) * globeradius) / 0xFFFF;
-    arccos[x] = (a + 90) / 182;
+  for (int a = 0; a < FIXED_90_DEG; a+=91) {
+    int32_t x = (FIXED_180_DEG + cos_lookup(a) * globeradius) / FIXED_360_DEG;
+    arccos[x] = a;
   }
+}
+
+#define SQRT_MAGIC_F 0x5f3759df 
+inline float  sqrt_fast(const float x){
+  union
+  {
+    float x;
+    int i;
+  } u;
+  u.x = x;
+  u.i = SQRT_MAGIC_F - (u.i >> 1); 
+  
+  // newton step for increased accuracy
+  return x * u.x * (1.5f - 0.5f * x * u.x * u.x);
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
@@ -35,9 +53,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   //uint16_t ms1, ms2;
     
   //time_ms(&seconds1, &ms1);
-  globelong += animation_direction;
-  if (globelong >= 360) globelong -= 360;
-  if (globelong < 0) globelong += 360;
+  globelong += animation_direction * 0x100;
   
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
@@ -57,29 +73,48 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
           firstx = true;
           width = globecenterx - x;
         }
-        //int longshift = cos_lookup(globelat * 0x4000 / 90);
-        int latshift = globelat * cos_lookup(xdiff * 0x4000 / globeradius);
-        int longitude = globelong + (x > globecenterx ? 
-          180 - arccos[xdiff * globeradius / width] :
-          arccos[xdiff * globeradius / width]); //* longshift / 0x10000;
+        uint16_t longitude = (x > globecenterx ? 
+          FIXED_180_DEG - arccos[xdiff * globeradius / width] :
+          arccos[xdiff * globeradius / width]); 
         int latitude = (y > globecentery ? 
-           180 - arccos[ydiff] : arccos[ydiff]) + globelat; //+ latshift / 0x10000;
+           FIXED_180_DEG - arccos[ydiff] : arccos[ydiff]); 
 
-        if (latitude < 0) { latitude = -latitude; longitude += 180; }
-        if (latitude > 180) { latitude = 180-latitude; longitude += 180; }
-        if (longitude < 0) longitude += 360;
-        if (longitude >= 360) longitude %= 360;
-        //if (y == globecentery)
-        //  APP_LOG(APP_LOG_LEVEL_INFO, "x = %d, xdiff = %d, lat = %d, long = %d, latshift = %d, longshift = %d\n", x, xdiff, latitude, longitude, latshift, longshift);
+        if (latitude < 0) { latitude = -latitude; longitude += FIXED_180_DEG; }
+        if (latitude > FIXED_180_DEG) { latitude = FIXED_180_DEG-latitude; longitude += FIXED_180_DEG; }
+        if (globelat != 0) {
+          // Convert to cartesian coordinates
+          int cordx = globeradius * sin_lookup(latitude) / FIXED_360_DEG * cos_lookup(longitude) / FIXED_360_DEG;
+          int cordy = globeradius * sin_lookup(latitude) / FIXED_360_DEG * sin_lookup(longitude) / FIXED_360_DEG;
+          int cordz = globeradius * cos_lookup(latitude) / FIXED_360_DEG;
+        
+          // Multiplication (rotation by the x-axis)
+          // x'   | 1   0       0    | | x |     x' = x
+          // y' = | 0 cos(t)  sin(t) | | y | =>  y' = cos(t)*y + sin(t)*z
+          // z'   | 0 -sin(t) cos(t) | | z |     z' = -sin(t)*y + cos(t)*z
+          int xrot = cordx;
+          int yrot = (cos_lookup(globelat) * cordy + sin_lookup(globelat) * cordz) >> FIXED_360_DEG_SHIFT;
+          int zrot = (-sin_lookup(globelat) * cordy + cos_lookup(globelat) * cordz) >> FIXED_360_DEG_SHIFT;
+        
+          // convert to spherical coordinates
+          latitude = atan2_lookup(sqrt_fast(xrot * xrot + yrot * yrot), zrot);
+          longitude = atan2_lookup(yrot, xrot);
+        }
+        longitude += globelong;
+        
+        if (latitude < 0) { latitude = -latitude; longitude += FIXED_180_DEG; }
+        if (latitude > FIXED_180_DEG) { latitude = FIXED_180_DEG-latitude; longitude += FIXED_180_DEG; }
+
+        //if (xdiff == ydiff)
+        //  APP_LOG(APP_LOG_LEVEL_INFO, "x = %d, cordx = %d, y=%d, cordy=%d, xdiff = %d, lat = %d, long = %d\n", x, cordx, y, cordy, xdiff, latitude, longitude);
         
         int bitmapwidth = gbitmap_get_bytes_per_row(s_background_bitmap);
-        uint16_t byteposition = latitude/2 * bitmapwidth + longitude / 2;
+        uint16_t byteposition = latitude * 360 / FIXED_360_DEG / 2 * bitmapwidth + longitude * 360 / FIXED_360_DEG / 2;
 #ifdef PBL_COLOR
         uint8_t pixel = raw_bitmap_data[byteposition];
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
         DRAW_COLOR_PIXEL(framebuffer, x, y, pixel);
 #else        
-        uint8_t byte = raw_bitmap_data[latitude/2 * bitmapwidth + longitude / 2 / 8];
+        uint8_t byte = raw_bitmap_data[latitude * 360 / FIXED_360_DEG / 2 * bitmapwidth + longitude * 360 / FIXED_360_DEG / 2 / 8];
         uint8_t pixel = (byte >> (byteposition % 8)) & 1;
         graphics_context_set_stroke_color(ctx, (GColor)pixel);
         DRAW_BW_PIXEL(framebuffer, x, y, pixel);
@@ -107,9 +142,7 @@ static void anim_stopped_handler(Animation* anim, bool finished, void* context) 
 }
 
 static void anim_update_handler(Animation* anim, AnimationProgress progress) {
-  globelong = animation_start + animation_direction * 450 * progress / ANIMATION_NORMALIZED_MAX;
-  if (globelong >= 360) globelong -= 360;
-  if (globelong < 0) globelong += 360;
+  globelong = animation_start + animation_direction * 0x16000 * progress / ANIMATION_NORMALIZED_MAX;
   layer_mark_dirty(s_simple_bg_layer);
 }
 
@@ -133,6 +166,7 @@ void spin_globe(int delay, int direction) {
 
 void init_globe(Window *window) {
   init_arccos();
+  //init_arctan();
   
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);

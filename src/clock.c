@@ -38,7 +38,7 @@ void init_time(Window *window) {
   text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create time shadow textlayer
-  s_time_shadow_layer = text_layer_create(GRect(1,1,130,45));
+  s_time_shadow_layer = text_layer_create(GRect(0,2,130,45));
   text_layer_set_background_color(s_time_shadow_layer, GColorClear);
   text_layer_set_text_color(s_time_shadow_layer, GColorBlack);
 
@@ -48,7 +48,7 @@ void init_time(Window *window) {
   text_layer_set_text_color(s_date_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create date shadow textlayer
-  s_date_shadow_layer = text_layer_create(GRect(39,131,100,45));
+  s_date_shadow_layer = text_layer_create(GRect(38,132,100,45));
   text_layer_set_background_color(s_date_shadow_layer, GColorClear);
   text_layer_set_text_color(s_date_shadow_layer, GColorBlack);
 
