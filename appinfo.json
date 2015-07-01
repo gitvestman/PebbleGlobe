@@ -1,7 +1,11 @@
 {
-    "appKeys": {},
+    "appKeys": {
+        "KEY_LATITUDE": 1,
+        "KEY_LONGITUDE": 0,
+        "KEY_TIMEZONE": 2
+    },
     "capabilities": [
-        ""
+        "location"
     ],
     "companyName": "Vestman.Net",
     "longName": "Globe",

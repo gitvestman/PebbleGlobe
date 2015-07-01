@@ -3,6 +3,7 @@
 #include "math.h"
 #include "globe.h"
 #include "battery.h"
+#include "message.h"
 
 Window *main_window;
 
@@ -47,10 +48,15 @@ void handle_init(void) {
   
   // Subscribe to taps
   accel_tap_service_subscribe(tap_handler);
+  
+  // Register callbacks
+  message_init();
 }
+
 
 void handle_deinit(void) {
   accel_tap_service_unsubscribe();
+  message_deinit();
   window_destroy(main_window);
 }
 
