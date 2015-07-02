@@ -1,8 +1,8 @@
 #include <pebble.h>
 #include "message.h"
 
-uint_fast16_t currentlong;
-uint_fast16_t currentlat;
+int currentlong;
+int currentlat;
 int_fast16_t timezone_offset;
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {

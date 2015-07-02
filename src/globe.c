@@ -11,7 +11,7 @@
 static GBitmap *s_background_bitmap;
 static Layer *s_simple_bg_layer;
 static uint8_t* raw_bitmap_data;
-static uint_fast8_t globeradius = 60;
+static int8_t globeradius = 60;
 static uint_fast16_t globeradiusx2 = 60*60;
 static uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 90;
@@ -73,6 +73,7 @@ void set_sun_position(uint16_t longitude, uint16_t latitude) {
   if (animating) {
     update_animaion_parameters();
   }
+  gpsposition = !gpsposition;
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
@@ -154,7 +155,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
       }
     }
   }
-  if (false && currentlong != 0) {
+  if (currentlong != 0 && gpsposition) {
     int sinlatglobe = ((globeradius * sin_lookup(currentlat)) >> FIXED_360_DEG_SHIFT);
     uint16_t rotatedlong = FIXED_90_DEG - currentlong + globelong;
     int z = (globeradius * cos_lookup(currentlat)) >> FIXED_360_DEG_SHIFT;
@@ -164,6 +165,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
     int myy = (cosglobelat * y + singlobelat * z) >> FIXED_360_DEG_SHIFT;
     int myz = ((-singlobelat * y + cosglobelat * z) >> FIXED_360_DEG_SHIFT) + globecentery;
     if (myy > 0 && gpsposition) {
+      APP_LOG(APP_LOG_LEVEL_INFO, "GPS x %d, y %d = %d, %d, %d, %d", myx, myy, z, (int)globeradius, (int)cos_lookup(currentlat), currentlat);
 #ifdef PBL_COLOR
       DRAW_COLOR_PIXEL(framebuffer, myx, myz, 0xF0);
       DRAW_COLOR_PIXEL(framebuffer, myx, myz+1, 0xF0);
@@ -187,7 +189,6 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
       DRAW_BW_PIXEL(framebuffer, myx+1, myz-1, pixel);
 #endif
     }
-    gpsposition = !gpsposition;
   }
   graphics_release_frame_buffer(ctx, framebuffer);
   //time_ms(&seconds2, &ms2);
