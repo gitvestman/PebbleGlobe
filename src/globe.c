@@ -1,4 +1,5 @@
 #include <pebble.h>
+#include "clock.h"
 #include "globe.h"
 #include "message.h"
 
@@ -22,6 +23,7 @@ static int sunlong = 0;
 static int sunlat = 0;
 static int animation_direction = 1;
 static bool animating = true;
+//static int animation_count;
 static bool gpsposition = 0;
 
 static void update_animaion_parameters();
@@ -165,7 +167,6 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
     int myy = (cosglobelat * y + singlobelat * z) >> FIXED_360_DEG_SHIFT;
     int myz = ((-singlobelat * y + cosglobelat * z) >> FIXED_360_DEG_SHIFT) + globecentery;
     if (myy > 0 && gpsposition) {
-      APP_LOG(APP_LOG_LEVEL_INFO, "GPS x %d, y %d = %d, %d, %d, %d", myx, myy, z, (int)globeradius, (int)cos_lookup(currentlat), currentlat);
 #ifdef PBL_COLOR
       DRAW_COLOR_PIXEL(framebuffer, myx, myz, 0xF0);
       DRAW_COLOR_PIXEL(framebuffer, myx, myz+1, 0xF0);
@@ -193,7 +194,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   graphics_release_frame_buffer(ctx, framebuffer);
   //time_ms(&seconds2, &ms2);
   //int diff = (seconds2 - seconds1) * 1000 + (ms2 - ms1);
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Redering time %d", diff);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "%d:%d Redering time %d", (int)seconds2, (int)ms2, diff);
 }
 
 static int longitude_start = 0;
@@ -210,6 +211,8 @@ static void anim_started_handler(Animation* anim, void* context) {
   latitude_start = globelat;
   latitude_length = sunlat - globelat;
   animating = true;
+  //animation_count = 0;
+  tick_timer_service_unsubscribe();
 }
 
 static void update_animaion_parameters() {
@@ -219,12 +222,15 @@ static void update_animaion_parameters() {
 static void anim_stopped_handler(Animation* anim, bool finished, void* context) {
   animation_destroy(anim);
   animating = false;
+  reset_ticks();
+  //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
 
 static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   layer_mark_dirty(s_simple_bg_layer);
+  //animation_count++;
 }
 
 static AnimationImplementation spin_animation = {

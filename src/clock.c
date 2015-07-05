@@ -26,13 +26,13 @@ void reset_ticks() {
   BatteryChargeState charge = battery_state_service_peek();
   if (charge.is_charging || charge.charge_percent > 20) {
     tick_count = 0;
-    tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);    
+    tick_timer_service_subscribe(SECOND_UNIT, tick_handler);    
   }
 }
 
 void init_time(Window *window) {
   //Register with TickTimerService
-  tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
+  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
   
   // Create time textlayer
   s_time_layer = text_layer_create(GRect(2,0,130,45));
