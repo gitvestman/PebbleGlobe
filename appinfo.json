@@ -13,14 +13,13 @@
     "resources": {
         "media": [
             {
-                "file": "images/globe_bw.png",
-                "menuIcon": true,
-                "name": "IMAGE_ICON",
+                "file": "images/earth_place_dither180_bw.png",
+                "name": "IMAGE_GLOBE",
                 "type": "png"
             },
             {
-                "file": "images/earth_place_dither180_bw.png",
-                "name": "IMAGE_GLOBE",
+                "file": "images/globe_bw.png",
+                "name": "IMAGE_ICON",
                 "type": "png"
             }
         ]
@@ -32,7 +31,7 @@
         "basalt"
     ],
     "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
-    "versionLabel": "1.6",
+    "versionLabel": "1.7",
     "watchapp": {
         "watchface": true
     }

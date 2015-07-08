@@ -23,11 +23,8 @@ void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 }
 
 void reset_ticks() {
-  BatteryChargeState charge = battery_state_service_peek();
-  if (charge.is_charging || charge.charge_percent > 20) {
-    tick_count = 0;
-    tick_timer_service_subscribe(SECOND_UNIT, tick_handler);    
-  }
+  tick_count = 0;
+  tick_timer_service_subscribe(SECOND_UNIT, tick_handler);    
 }
 
 void init_time(Window *window) {
