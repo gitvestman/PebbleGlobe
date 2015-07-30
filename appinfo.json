@@ -1,19 +1,11 @@
 {
-    "appKeys": {
-        "KEY_LATITUDE": 1,
-        "KEY_LONGITUDE": 0,
-        "KEY_TIMEZONE": 2
-    },
-    "capabilities": [
-        "location"
-    ],
     "companyName": "Vestman.Net",
-    "longName": "Globe",
+    "longName": "Pluto",
     "projectType": "native",
     "resources": {
         "media": [
             {
-                "file": "images/earth_place_dither180_bw.png",
+                "file": "images/pluto.png",
                 "name": "IMAGE_GLOBE",
                 "type": "png"
             },
@@ -25,13 +17,13 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Globe",
+    "shortName": "Pluto",
     "targetPlatforms": [
         "aplite",
         "basalt"
     ],
-    "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
-    "versionLabel": "1.7",
+    "uuid": "cb0740aa-4e12-45f0-aab9-cbcb546c5ee4",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": true
     }

@@ -1,7 +1,6 @@
 #include <pebble.h>
 #include "clock.h"
 #include "globe.h"
-#include "message.h"
 
 #define FIXED_360_DEG 0x10000
 #define FIXED_360_DEG_SHIFT 16
@@ -16,25 +15,25 @@ static int8_t globeradius = 60;
 static uint_fast16_t globeradiusx2 = 60*60;
 static uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 90;
-static int globelat = 0x1000;
+static int globelat = -0x3000;
 static int xres = 0;
 static int yres = 0;
-static int sunlong = 0;
-static int sunlat = 0;
+static int sunlong = 0x3000;
+static int sunlat = -0x1A00;
 static int animation_direction = 1;
 static bool animating = true;
-//static int animation_count;
+static int animation_count;
 static bool gpsposition = 0;
 
 static void update_animaion_parameters();
 static uint8_t* framebufferdata;
 static uint8_t framebuffer_bytes_per_row;
 
-#define DRAW_BW_PIXEL( framebuffer, x, y, color ) \
-      (((uint8_t*)(framebuffer->addr))[(y)*framebuffer->row_size_bytes + ((x) >> 3)] |= ((color) << ((x) & 0x07)));
+#define DRAW_BW_PIXEL( framebuffer, x, yoffset, color ) \
+      (((uint8_t*)(framebuffer->addr))[yoffset + ((x) >> 3)] |= ((color) << ((x) & 0x07)));
 
-#define DRAW_COLOR_PIXEL( framebuffer, x, y, color ) \
-      (framebufferdata[(y)*framebuffer_bytes_per_row + (x)] = color);
+#define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
+      (framebufferdata[yoffset + (x)] = color);
       //(gbitmap_get_data(framebuffer)[(y)*gbitmap_get_bytes_per_row(framebuffer) + (x)] = color);
 
 static int32_t arccos[81];
@@ -69,14 +68,14 @@ static void init_sqrt() {
   }
 }
 
-void set_sun_position(uint16_t longitude, uint16_t latitude) {
-  sunlong = longitude;
-  sunlat = latitude;
-  if (animating) {
-    update_animaion_parameters();
-  }
-  gpsposition = !gpsposition;
-}
+//void set_sun_position(uint16_t longitude, uint16_t latitude) {
+//  sunlong = longitude;
+//  sunlat = latitude;
+//  if (animating) {
+//    update_animaion_parameters();
+//  }
+//  gpsposition = !gpsposition;
+//}
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
   //time_t seconds1, seconds2;
@@ -84,10 +83,14 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
     
   //time_ms(&seconds1, &ms1);
   if (!animating) {
-    globelong = sunlong;
-    globelat = sunlat;
+    globelong += 128 * animation_direction;
+    //globelat = sunlat;
   }
   
+  GBitmapFormat format = gbitmap_get_format(s_background_bitmap);
+  #ifdef PBL_COLOR
+  GColor* palette = gbitmap_get_palette(s_background_bitmap);
+  #endif
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
     
@@ -100,6 +103,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   int bitmapwidth = gbitmap_get_bytes_per_row(s_background_bitmap);
   
   for (uint_fast8_t y = globecentery - globeradius; y < globecentery + globeradius; y++) {
+    uint_fast16_t yoffset = y*framebuffer_bytes_per_row;
     bool firstx = false;
     int width = globeradius;
     int ydiff = abs(y - globecentery);
@@ -143,52 +147,27 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
         // Rotate longitude
         longitude += globelong;
 
-        uint_fast8_t lineposition = ((latitude * 180) >> FIXED_360_DEG_SHIFT) * bitmapwidth;
+        uint_fast8_t lineposition = ((latitude * 256) >> FIXED_360_DEG_SHIFT) * bitmapwidth;
+        uint_fast16_t rowposition = ((longitude * 256) >> FIXED_360_DEG_SHIFT);
 #ifdef PBL_COLOR
-        uint16_t byteposition = lineposition + ((longitude * 180) >> FIXED_360_DEG_SHIFT);
-        uint8_t pixel = raw_bitmap_data[byteposition];
-        DRAW_COLOR_PIXEL(framebuffer, x, y, pixel);
+ 
+        uint8_t pixel = 0;
+        if (format == GBitmapFormat8Bit) {
+          uint16_t byteposition = lineposition + rowposition;
+          pixel = raw_bitmap_data[byteposition];
+        } else if (format == GBitmapFormat4BitPalette) { 
+          uint16_t byteposition = lineposition + (rowposition >> 1);
+          uint8_t byte = raw_bitmap_data[byteposition];
+          pixel = palette[(byte >> (rowposition & 0x01) * 4) & 0x0F].argb;
+        }
+        DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
 #else        
-        uint16_t byteposition = lineposition + ((longitude * 180) >> (FIXED_360_DEG_SHIFT + 3));
+        uint16_t byteposition = lineposition + (rowposition >> 3);
         uint8_t byte = raw_bitmap_data[byteposition];
-        uint8_t pixel = (byte >> (((longitude * 180) >> FIXED_360_DEG_SHIFT) & 0x07)) & 1;
-        DRAW_BW_PIXEL(framebuffer, x, y, pixel);
+        uint8_t pixel = (byte >> (rowposition & 0x07)) & 1;
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
 #endif
       }
-    }
-  }
-  if (currentlong != 0 && gpsposition) {
-    int sinlatglobe = ((globeradius * sin_lookup(currentlat)) >> FIXED_360_DEG_SHIFT);
-    uint16_t rotatedlong = FIXED_90_DEG - currentlong + globelong;
-    int z = (globeradius * cos_lookup(currentlat)) >> FIXED_360_DEG_SHIFT;
-    int x = (sinlatglobe * cos_lookup(rotatedlong)) >> FIXED_360_DEG_SHIFT;
-    int y = (sinlatglobe * sin_lookup(rotatedlong)) >> FIXED_360_DEG_SHIFT;
-    int myx = x + globecenterx;
-    int myy = (cosglobelat * y + singlobelat * z) >> FIXED_360_DEG_SHIFT;
-    int myz = ((-singlobelat * y + cosglobelat * z) >> FIXED_360_DEG_SHIFT) + globecentery;
-    if (myy > 0 && gpsposition) {
-#ifdef PBL_COLOR
-      DRAW_COLOR_PIXEL(framebuffer, myx, myz, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx, myz+1, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx+1, myz, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx+1, myz+1, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx, myz-1, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx-1, myz, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx-1, myz-1, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx-1, myz+1, 0xF0);
-      DRAW_COLOR_PIXEL(framebuffer, myx+1, myz-1, 0xF0);
-#else
-      uint8_t pixel = gpsposition;
-      DRAW_BW_PIXEL(framebuffer, myx, myz, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx, myz+1, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx+1, myz, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx+1, myz+1, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx, myz-1, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx-1, myz, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx-1, myz-1, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx-1, myz+1, pixel);
-      DRAW_BW_PIXEL(framebuffer, myx+1, myz-1, pixel);
-#endif
     }
   }
   graphics_release_frame_buffer(ctx, framebuffer);
@@ -211,7 +190,7 @@ static void anim_started_handler(Animation* anim, void* context) {
   latitude_start = globelat;
   latitude_length = sunlat - globelat;
   animating = true;
-  //animation_count = 0;
+  animation_count = 0;
   tick_timer_service_unsubscribe();
 }
 
@@ -223,14 +202,14 @@ static void anim_stopped_handler(Animation* anim, bool finished, void* context) 
   animation_destroy(anim);
   animating = false;
   reset_ticks();
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
+  APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
 
 static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   layer_mark_dirty(s_simple_bg_layer);
-  //animation_count++;
+  animation_count++;
 }
 
 static AnimationImplementation spin_animation = {

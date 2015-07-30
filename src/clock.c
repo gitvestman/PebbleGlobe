@@ -1,6 +1,5 @@
 #include <pebble.h>
 #include "clock.h"
-#include "message.h"
 #include "globe.h"
 
 static TextLayer *s_time_layer;
@@ -12,7 +11,7 @@ static GFont s_date_font;
 static long tick_count = 0;
 
 // Change to minute ticking after a while to save battery
-#define MAX_SECOND_TICKS 20
+#define MAX_SECOND_TICKS 60
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
@@ -37,7 +36,7 @@ void init_time(Window *window) {
   text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create time shadow textlayer
-  s_time_shadow_layer = text_layer_create(GRect(0,2,130,45));
+  s_time_shadow_layer = text_layer_create(GRect(0,3,130,45));
   text_layer_set_background_color(s_time_shadow_layer, GColorClear);
   text_layer_set_text_color(s_time_shadow_layer, GColorBlack);
 
@@ -47,7 +46,7 @@ void init_time(Window *window) {
   text_layer_set_text_color(s_date_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create date shadow textlayer
-  s_date_shadow_layer = text_layer_create(GRect(38,132,100,45));
+  s_date_shadow_layer = text_layer_create(GRect(42,128,100,45));
   text_layer_set_background_color(s_date_shadow_layer, GColorClear);
   text_layer_set_text_color(s_date_shadow_layer, GColorBlack);
 
@@ -99,13 +98,13 @@ void update_time() {
   text_layer_set_text(s_date_shadow_layer, dateshadowbuffer);  
   
   // Calculate sun position
-  struct tm *gm_time = gmtime(&now);  
-#if PBL_PLATFORM_APLITE
-  gm_time->tm_hour += timezone_offset / 60;
-#endif
-  int16_t sunlong = (int16_t)(TRIG_MAX_ANGLE/2 + TRIG_MAX_ANGLE/4 - (int)(gm_time->tm_hour * 2730.6 + gm_time->tm_min * 45.5));
-  int16_t sunlat = (int16_t)((cos_lookup((gm_time->tm_yday - 7) * TRIG_MAX_ANGLE / 365))/32) - 0x200;
-  set_sun_position(sunlong, sunlat);
+  //struct tm *gm_time = gmtime(&now);  
+//#if PBL_PLATFORM_APLITE
+  //gm_time->tm_hour += timezone_offset / 60;
+//#endif
+  //int16_t sunlong = (int16_t)(TRIG_MAX_ANGLE/2 + TRIG_MAX_ANGLE/4 - (int)(gm_time->tm_hour * 2730.6 + gm_time->tm_min * 45.5));
+  //int16_t sunlat = (int16_t)((cos_lookup((gm_time->tm_yday - 7) * TRIG_MAX_ANGLE / 365))/32) - 0x200;
+  //set_sun_position(sunlong, sunlat);
 }
 
 void destroy_time() {
