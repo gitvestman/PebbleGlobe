@@ -11,8 +11,8 @@
 static GBitmap *s_background_bitmap;
 static Layer *s_simple_bg_layer;
 static uint8_t* raw_bitmap_data;
-static int8_t globeradius = 60;
-static uint_fast16_t globeradiusx2 = 60*60;
+static int8_t globeradius = 64;
+static uint_fast16_t globeradiusx2 = 64*64;
 static uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 90;
 static int globelat = -0x3000;
@@ -158,7 +158,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
         } else if (format == GBitmapFormat4BitPalette) { 
           uint16_t byteposition = lineposition + (rowposition >> 1);
           uint8_t byte = raw_bitmap_data[byteposition];
-          pixel = palette[(byte >> (rowposition & 0x01) * 4) & 0x0F].argb;
+          pixel = palette[(byte >> (1 - (rowposition & 0x01)) * 4) & 0x0F].argb;
         }
         DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
 #else        
