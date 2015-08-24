@@ -1,17 +1,12 @@
 {
     "companyName": "Vestman.Net",
-    "longName": "Pluto",
+    "longName": "BB8",
     "projectType": "native",
     "resources": {
         "media": [
             {
-                "file": "images/pluto.png",
+                "file": "images/BB8.png",
                 "name": "IMAGE_GLOBE",
-                "type": "png"
-            },
-            {
-                "file": "images/globe_bw.png",
-                "name": "IMAGE_ICON",
                 "type": "png"
             }
         ]
@@ -19,11 +14,10 @@
     "sdkVersion": "3",
     "shortName": "Pluto",
     "targetPlatforms": [
-        "aplite",
         "basalt"
     ],
     "uuid": "cb0740aa-4e12-45f0-aab9-cbcb546c5ee4",
-    "versionLabel": "1.2",
+    "versionLabel": "1.0",
     "watchapp": {
         "watchface": true
     }
