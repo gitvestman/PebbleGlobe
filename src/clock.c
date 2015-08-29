@@ -52,7 +52,11 @@ void init_time(Window *window) {
 
   // Create Fonts
   //s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
+#ifdef PBL_COLOR
   s_time_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
+#else
+  s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
+#endif
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
 
   text_layer_set_font(s_date_shadow_layer, s_date_font);

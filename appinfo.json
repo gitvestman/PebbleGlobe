@@ -8,13 +8,18 @@
                 "file": "images/BB8.png",
                 "name": "IMAGE_GLOBE",
                 "type": "png"
+            },
+            {
+                "file": "images/BB8-Head.png",
+                "name": "IMAGE_HEAD",
+                "type": "png"
             }
         ]
     },
     "sdkVersion": "3",
     "shortName": "Pluto",
     "targetPlatforms": [
-        "basalt"
+        "aplite", "basalt"
     ],
     "uuid": "cb0740aa-4e12-45f0-aab9-cbcb546c5ee4",
     "versionLabel": "1.0",
