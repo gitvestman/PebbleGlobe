@@ -40,7 +40,8 @@ static uint8_t* framebufferdata;
 static uint8_t framebuffer_bytes_per_row;
 
 #define DRAW_BW_PIXEL( framebuffer, x, yoffset, color ) \
-      (((uint8_t*)(framebuffer->addr))[yoffset + ((x) >> 3)] |= ((color) << ((x) & 0x07)));
+      (color != 0 ? (((uint8_t*)(framebuffer->addr))[yoffset + ((x) >> 3)] |= ((color) << ((x) & 0x07))) : \
+                    (((uint8_t*)(framebuffer->addr))[yoffset + ((x) >> 3)] &= ~((1) << ((x) & 0x07))));
 
 #define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
       (framebufferdata[yoffset + (x)] = color);
@@ -87,15 +88,6 @@ static void init_sqrt() {
 }
 
 static void draw_main_globe(Layer *layer, GContext *ctx, uint8_t* raw_bitmap_data) {
-  //time_t seconds1, seconds2;
-  //uint16_t ms1, ms2;
-
-  //time_ms(&seconds1, &ms1);
-  if (!animating) {
-    globelat -= 128 * animation_direction;
-    globelong += 64 * animation_direction;
-    //globelat = sunlat;
-  }
 
   GBitmapFormat format = gbitmap_get_format(s_background_bitmap);
   #ifdef PBL_COLOR
@@ -185,16 +177,6 @@ static void draw_main_globe(Layer *layer, GContext *ctx, uint8_t* raw_bitmap_dat
 }
 
 static void draw_head(Layer *layer, GContext *ctx, uint8_t* raw_bitmap_data) {
-  //time_t seconds1, seconds2;
-  //uint16_t ms1, ms2;
-
-  //time_ms(&seconds1, &ms1);
-  if (!animating) {
-    //headlat -= 128 * animation_direction;
-    headlong += 512 * animation_direction;
-    //globelat = sunlat;
-  }
-
   GBitmapFormat format = gbitmap_get_format(s_head_bitmap);
   #ifdef PBL_COLOR
   GColor* palette = gbitmap_get_palette(s_head_bitmap);
@@ -285,6 +267,15 @@ static void draw_head(Layer *layer, GContext *ctx, uint8_t* raw_bitmap_data) {
 static void bg_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_fill_color(ctx, GColorBlack);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+
+  if (!animating) {
+    globelat -= 128 * animation_direction;
+    globelong += 64 * animation_direction;
+    headlong += 256 * animation_direction;
+    if (headlong < 50 || headlong > 20000)
+      animation_direction = -animation_direction;
+  }
+
   draw_main_globe(layer, ctx, raw_bitmap_globe_data);
   draw_head(layer, ctx, raw_bitmap_head_data);
 }
@@ -301,7 +292,7 @@ static Animation* s_globe_animation;
 
 static void anim_started_handler(Animation* anim, void* context) {
   longitude_start = globelong;
-  longitude_length = abs(sunlong - globelong) + FIXED_180_DEG;
+  longitude_length = abs(sunlong - globelong) + FIXED_360_DEG * 2;
   latitude_start = globelat;
   latitude_length = abs(sunlong - globelong) + FIXED_360_DEG;
   headlong_start = headlong;
@@ -321,7 +312,7 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + animation_direction * latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   headlong = headlong_start + animation_direction * sin_lookup(progress * 3) / 8;
-  headbump = cos_lookup(progress * 8) >> FIXED_360_DEG_SHIFT;
+  headbump = abs(2 * cos_lookup(progress * 8) >> FIXED_360_DEG_SHIFT);
   layer_mark_dirty(s_simple_bg_layer);
   animation_count++;
 }
@@ -353,7 +344,7 @@ void init_globe(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
   globecenterx = headcenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2 + 20;
-  headcentery = globecentery - globeradius + 5;
+  headcentery = globecentery - globeradius + 4;
   xres = bounds.size.w;
   yres = bounds.size.h;
   // Main globe

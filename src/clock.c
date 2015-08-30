@@ -11,7 +11,7 @@ static GFont s_date_font;
 static long tick_count = 0;
 
 // Change to minute ticking after a while to save battery
-#define MAX_SECOND_TICKS 60
+#define MAX_SECOND_TICKS 30
 
 void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
@@ -46,7 +46,7 @@ void init_time(Window *window) {
   text_layer_set_text_color(s_date_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create date shadow textlayer
-  s_date_shadow_layer = text_layer_create(GRect(38,128,100,45));
+  s_date_shadow_layer = text_layer_create(GRect(42,128,100,45));
   text_layer_set_background_color(s_date_shadow_layer, GColorClear);
   text_layer_set_text_color(s_date_shadow_layer, GColorBlack);
 
