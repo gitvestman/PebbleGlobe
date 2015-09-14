@@ -163,6 +163,7 @@ static void draw_main_globe(Layer *layer, GContext *ctx, uint8_t* raw_bitmap_dat
         DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
 #else
         uint16_t byteposition = lineposition + (rowposition >> 3);
+        if (byteposition > 4096) { byteposition &= 0x3FF; }
         uint8_t byte = raw_bitmap_data[byteposition];
         uint8_t pixel = (byte >> (rowposition & 0x07)) & 1;
         DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
@@ -312,7 +313,7 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + animation_direction * latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   headlong = headlong_start + animation_direction * sin_lookup(progress * 3) / 8;
-  headbump = abs(2 * cos_lookup(progress * 8) >> FIXED_360_DEG_SHIFT);
+  headbump = abs(3 * cos_lookup(progress * 8) >> FIXED_360_DEG_SHIFT);
   layer_mark_dirty(s_simple_bg_layer);
   animation_count++;
 }

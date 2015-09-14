@@ -17,12 +17,12 @@
         ]
     },
     "sdkVersion": "3",
-    "shortName": "Pluto",
+    "shortName": "BB8",
     "targetPlatforms": [
         "aplite", "basalt"
     ],
-    "uuid": "cb0740aa-4e12-45f0-aab9-cbcb546c5ee4",
-    "versionLabel": "1.0",
+    "uuid": "9b385b97-a8cd-497a-9be3-3ca62b42d818",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": true
     }
