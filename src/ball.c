@@ -146,8 +146,8 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
         // Rotate longitude
         longitude += longitude_rotation;
 
-        uint_fast8_t lineposition = ((latitude * 256) >> FIXED_360_DEG_SHIFT) * ball->bitmapwidth;
-        uint_fast16_t rowposition = ((longitude * 256) >> FIXED_360_DEG_SHIFT);
+        uint_fast8_t lineposition = ((latitude * ball->bitmapbounds.size.w) >> FIXED_360_DEG_SHIFT) * ball->bitmapwidth;
+        uint_fast16_t rowposition = ((longitude * ball->bitmapbounds.size.w) >> FIXED_360_DEG_SHIFT);
 #ifdef PBL_COLOR
 
         uint8_t pixel = 0;

@@ -16,7 +16,7 @@ static uint_fast8_t globecenterx, globecentery;
 static int8_t headradius = 28;
 static uint_fast8_t headcenterx, headcentery;
 
-static uint16_t globelong = 90;
+static uint16_t globelong = 15000;
 static int globelat = 0x2000;
 
 static uint16_t headlong = 90;
@@ -219,7 +219,7 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
     globelat -= 128 * animation_direction;
     globelong += 64 * animation_direction;
     headlong += 256 * animation_direction;
-    if (headlong < 50 || headlong > 20000)
+    if (headlong < 100 || headlong > 20000)
       animation_direction = -animation_direction;
   }
 
@@ -294,7 +294,7 @@ void init_globe(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
   globecenterx = headcenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2 + 20;
-  headcentery = globecentery - globeradius + 4;
+  headcentery = globecentery - globeradius + 0;
   xres = bounds.size.w;
   yres = bounds.size.h;
   // Main globe
