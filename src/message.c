@@ -8,7 +8,7 @@ int_fast16_t timezone_offset;
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
     // Read first item
   Tuple *t = dict_read_first(iterator);
-  
+
   // For all items
   while(t != NULL) {
     // Which key was received?
@@ -51,7 +51,7 @@ void message_init() {
   app_message_register_inbox_dropped(inbox_dropped_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
-  
+
   // Open AppMessage
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
