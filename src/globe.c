@@ -19,7 +19,7 @@ static uint_fast8_t headcenterx, headcentery;
 static uint16_t globelong = 15000;
 static int globelat = 0x2000;
 
-static uint16_t headlong = 90;
+static uint16_t headlong = 15000;
 static int headlat = -0x1000;
 static int headbump = 0;
 
@@ -223,9 +223,6 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
       animation_direction = -animation_direction;
   }
 
-  void ball_update_proc(Ball ball, Layer *layer, GContext *ctx,
-    int latitude_rotation, int longitude_rotation, int xdelta, int ydelta);
-
   ball_update_proc(body, layer, ctx, globelat, globelong, 0, 0);
   ball_update_proc(head, layer, ctx, headlat, headlong, 0, headbump);
   //draw_main_globe(layer, ctx, raw_bitmap_globe_data);
@@ -297,14 +294,14 @@ void init_globe(Window *window) {
   headcentery = globecentery - globeradius + 0;
   xres = bounds.size.w;
   yres = bounds.size.h;
-  // Main globe
+
+  // Body
   s_body_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GLOBE);
   int bytes = gbitmap_get_bytes_per_row(s_body_bitmap);
   GRect bodysize = gbitmap_get_bounds(s_body_bitmap);
   APP_LOG(APP_LOG_LEVEL_INFO, "Globe Bytes per row: %d (%d, %d)", bytes, bodysize.size.w, bodysize.size.h);
   GBitmapFormat format = gbitmap_get_format(s_body_bitmap);
   APP_LOG(APP_LOG_LEVEL_INFO, "Globe Bitmap format: %d", (int)format);
-  //raw_bitmap_globe_data = gbitmap_get_data(s_body_bitmap);
   body = create_ball(s_body_bitmap, globeradius, globecenterx, globecentery);
   APP_LOG(APP_LOG_LEVEL_INFO, "Body created: %p", body);
 
@@ -315,7 +312,6 @@ void init_globe(Window *window) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Head Bytes per row: %d (%d, %d)", bytes, headsize.size.w, headsize.size.h);
   format = gbitmap_get_format(s_head_bitmap);
   APP_LOG(APP_LOG_LEVEL_INFO, "Head Bitmap format: %d", (int)format);
-  //raw_bitmap_head_data = gbitmap_get_data(s_head_bitmap);
   head = create_ball(s_head_bitmap, headradius, headcenterx, headcentery);
 
   s_simple_bg_layer = layer_create(bounds);
