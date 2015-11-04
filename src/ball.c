@@ -29,6 +29,9 @@ struct ball {
 #define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
       (framebufferdata[yoffset + (x)] = color);
 
+#define DRAW_ROUND_PIXEL( rowdata, x, color ) \
+      (rowdata[x] = color);
+
 static int8_t sqrt_lookup[4500];
 
 // http://en.wikipedia.org/wiki/Fast_inverse_square_root
@@ -62,7 +65,7 @@ static void init_arccos(Ball ball) {
 
 Ball create_ball(GBitmap *bitmap, int radius, int x, int y) {
   Ball ball = malloc(sizeof(struct ball));
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Ball allocated %d bytes", sizeof(struct ball));
+  APP_LOG(APP_LOG_LEVEL_INFO, "Ball allocated %d bytes, position(%d, %d)", (int)sizeof(struct ball), x, y);
   ball->bitmap_data = gbitmap_get_data(bitmap);
   ball->bitmapwidth = gbitmap_get_bytes_per_row(bitmap);
   ball->bitmapbounds = gbitmap_get_bounds(bitmap);
@@ -90,8 +93,10 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
   graphics_context_set_stroke_color(ctx, GColorWhite);
   GBitmap *framebuffer = graphics_capture_frame_buffer(ctx);
   GRect bounds = gbitmap_get_bounds(framebuffer);
+#ifndef PBL_ROUND
   uint8_t* framebufferdata = gbitmap_get_data(framebuffer);
   uint8_t framebuffer_bytes_per_row = gbitmap_get_bytes_per_row(framebuffer);
+#endif
   int coslat = cos_lookup(latitude_rotation);
   int sinlat = sin_lookup(latitude_rotation);
   uint_fast8_t starty = ((int)ball->centery - ball->radius) < 0 ? 0 : ball->centery - ball->radius;
@@ -100,7 +105,13 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
   uint_fast8_t stopx = ((int)ball->centerx + ball->radius) >= bounds.size.w ? (uint_fast8_t)bounds.size.w : (uint_fast8_t)(ball->centerx + ball->radius);
 
   for (uint_fast8_t y = starty; y < stopy; y++) {
+#ifdef PBL_ROUND
+    GBitmapDataRowInfo info = gbitmap_get_data_row_info(framebuffer, y);
+    if ((int)startx < info.min_x) startx = info.min_x;
+    if ((int)stopx > info.max_x) stopx = info.max_x;
+#else
     uint_fast16_t yoffset = y*framebuffer_bytes_per_row;
+#endif
     bool firstx = false;
     int width = ball->radius;
     int ydiff = abs(y - ball->centery);
@@ -146,21 +157,19 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 
         uint_fast8_t lineposition = ((latitude * ball->bitmapbounds.size.w) >> FIXED_360_DEG_SHIFT) * ball->bitmapwidth;
         uint_fast16_t rowposition = ((longitude * ball->bitmapbounds.size.w) >> FIXED_360_DEG_SHIFT);
+        uint8_t pixel = 0;
 #ifdef PBL_COLOR
 
-        uint8_t pixel = 0;
         if (ball->format == GBitmapFormat8Bit) {
           uint16_t byteposition = lineposition + rowposition;
           if (byteposition < ball->bitmapsize) {
             pixel = ball->bitmap_data[byteposition];
-            DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
           }
         } else if (ball->format == GBitmapFormat4BitPalette) {
           uint16_t byteposition = lineposition + (rowposition >> 1);
           if (byteposition < ball->bitmapsize) {
             uint8_t byte = ball->bitmap_data[byteposition];
             pixel = ball->palette[(byte >> (1 - (rowposition & 0x01)) * 4) & 0x0F].argb;
-            DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
           }
         } else if (ball->format == GBitmapFormat2BitPalette) {
           uint16_t byteposition = lineposition + (rowposition >> 2);
@@ -173,9 +182,18 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
         uint16_t byteposition = lineposition + (rowposition >> 3);
         if (byteposition < ball->bitmapsize) {
           uint8_t byte = ball->bitmap_data[byteposition];
-          uint8_t pixel = (byte >> (rowposition & 0x07)) & 1;
-          DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
+          pixel = (byte >> (rowposition & 0x07)) & 1;
         }
+#endif
+
+#ifdef PBL_ROUND
+        /*if (x == ball->centerx)
+          APP_LOG(APP_LOG_LEVEL_INFO, "Round Draw position(%d, %d)", x, y);*/
+        DRAW_ROUND_PIXEL(info.data, x, pixel);
+#elif PBL_COLOR
+        DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
+#else
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
 #endif
       }
     }
@@ -188,8 +206,10 @@ void draw_gps_position(Ball ball, Layer *layer, GContext *ctx,
   uint16_t longitude, uint16_t latitude)
 {
   GBitmap *framebuffer = graphics_capture_frame_buffer(ctx);
+#ifndef PBL_ROUND
   uint8_t* framebufferdata = gbitmap_get_data(framebuffer);
   uint8_t framebuffer_bytes_per_row = gbitmap_get_bytes_per_row(framebuffer);
+#endif
 
   int coslat = cos_lookup(latitude_rotation);
   int sinlat = sin_lookup(latitude_rotation);
@@ -204,9 +224,15 @@ void draw_gps_position(Ball ball, Layer *layer, GContext *ctx,
   int myz = ((-sinlat * y + coslat * z) >> FIXED_360_DEG_SHIFT) + ball->centery;
   if (myy > 0) {
     for (int dz = -1; dz <= 1; dz++) {
+#ifdef PBL_ROUND
+      GBitmapDataRowInfo info = gbitmap_get_data_row_info(framebuffer, myz + dz);
+#else
       int yoffset = (myz + dz) * framebuffer_bytes_per_row;
+#endif
       for (int dx = -1; dx <= 1; dx++) {
-#ifdef PBL_COLOR
+#ifdef PBL_ROUND
+        DRAW_ROUND_PIXEL(info.data, myx + dx, 0xF0);
+#elif PBL_COLOR
         DRAW_COLOR_PIXEL(framebuffer, myx + dx, yoffset, 0xF0);
 #else
         uint8_t pixel = 1;

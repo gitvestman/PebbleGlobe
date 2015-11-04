@@ -15,21 +15,22 @@ static Ball globe;
 static int8_t globeradius = 60;
 static uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 90;
-static int globelat = 0x1000;
+static int globelat = 0xF000;
 static int xres = 0;
 static int yres = 0;
 static int sunlong = 0;
 static int sunlat = 0;
 static int animation_direction = 1;
 static bool animating = true;
-//static int animation_count;
+static int animation_count;
 static bool gpsposition = 0;
 
 static void update_animaion_parameters();
 
-void set_sun_position(uint16_t longitude, uint16_t latitude) {
+void set_sun_position(uint16_t longitude, int16_t latitude) {
   sunlong = longitude;
   sunlat = latitude;
+  //APP_LOG(APP_LOG_LEVEL_INFO, "set_sun_position: sunlong %d, sunlat %d", sunlong, sunlat);
   if (animating) {
     update_animaion_parameters();
   }
@@ -67,7 +68,7 @@ static void anim_started_handler(Animation* anim, void* context) {
   latitude_start = globelat;
   latitude_length = sunlat - globelat;
   animating = true;
-  //animation_count = 0;
+  animation_count = 0;
   tick_timer_service_unsubscribe();
 }
 
@@ -79,14 +80,14 @@ static void anim_stopped_handler(Animation* anim, bool finished, void* context) 
   animation_destroy(anim);
   animating = false;
   reset_ticks();
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
+  APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
 
 static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   layer_mark_dirty(s_simple_bg_layer);
-  //animation_count++;
+  animation_count++;
 }
 
 static AnimationImplementation spin_animation = {
@@ -113,15 +114,15 @@ void init_globe(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   globecenterx = bounds.size.w / 2;
-  globecentery = bounds.size.h / 2 + 10;
+  globecentery = bounds.size.h / 2;
   xres = bounds.size.w;
   yres = bounds.size.h;
   // Create GBitmap, then set to created BitmapLayer
   s_globe_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GLOBE);
   int bytes = gbitmap_get_bytes_per_row(s_globe_bitmap);
-  APP_LOG(APP_LOG_LEVEL_INFO, "Bytes per row: %d", bytes);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "Bytes per row: %d", bytes);
   GBitmapFormat format = gbitmap_get_format(s_globe_bitmap);
-  APP_LOG(APP_LOG_LEVEL_INFO, "Bitmap format: %d", (int)format);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "Bitmap format: %d", (int)format);
   globe = create_ball(s_globe_bitmap, globeradius, globecenterx, globecentery);
 
   s_simple_bg_layer = layer_create(bounds);
