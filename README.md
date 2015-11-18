@@ -1,4 +1,4 @@
-# PebbleGlobe
-Watch face with a view earth as a spinning globe
+# Pluto
+Watch face with a view pluto as a spinning globe
 
-![](https://github.com/gitvestman/PebbleGlobe/blob/master/pebble-screenshot.gif)
+![](https://github.com/gitvestman/PebbleGlobe/blob/pluto/pebble-screenshot.gif)
