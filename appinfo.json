@@ -19,10 +19,10 @@
     "sdkVersion": "3",
     "shortName": "BB8",
     "targetPlatforms": [
-        "aplite", "basalt"
+        "aplite", "basalt", "chalk"
     ],
     "uuid": "9b385b97-a8cd-497a-9be3-3ca62b42d818",
-    "versionLabel": "1.3",
+    "versionLabel": "1.4",
     "watchapp": {
         "watchface": true
     }

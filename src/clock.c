@@ -10,6 +10,20 @@ static GFont s_time_font;
 static GFont s_date_font;
 static long tick_count = 0;
 
+#ifdef PBL_ROUND
+static int timex = 16;
+static int timex2 = 107;
+static int timey = 25;
+static int datex = 35;
+static int datey = 140;
+#else
+static int timex = 0;
+static int timex2 = 80;
+static int timey = 2;
+static int datex = 40;
+static int datey = 130;
+#endif
+
 // Change to minute ticking after a while to save battery
 #define MAX_SECOND_TICKS 30
 
@@ -30,23 +44,23 @@ void init_time(Window *window) {
   //Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
-  // Create time textlayer
-  s_time_layer = text_layer_create(GRect(0,2,60,45));
+  // Create hour time textlayer
+  s_time_layer = text_layer_create(GRect(timex,timey,60,45));
   text_layer_set_background_color(s_time_layer, GColorClear);
-  text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
+  text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorLightGray , GColorWhite));
 
-  // Create time shadow textlayer
-  s_time_second_layer = text_layer_create(GRect(80,2,60,45));
+  // Create second time textlayer
+  s_time_second_layer = text_layer_create(GRect(timex2,timey,60,45));
   text_layer_set_background_color(s_time_second_layer, GColorClear);
-  text_layer_set_text_color(s_time_second_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
+  text_layer_set_text_color(s_time_second_layer, COLOR_FALLBACK(GColorLightGray , GColorWhite));
 
   // Create date textlayer
-  s_date_layer = text_layer_create(GRect(40,130,100,45));
+  s_date_layer = text_layer_create(GRect(datex,datey,100,45));
   text_layer_set_background_color(s_date_layer, GColorClear);
   text_layer_set_text_color(s_date_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create date shadow textlayer
-  s_date_shadow_layer = text_layer_create(GRect(42,128,100,45));
+  s_date_shadow_layer = text_layer_create(GRect(datex + 2,datey - 2,100,45));
   text_layer_set_background_color(s_date_shadow_layer, GColorClear);
   text_layer_set_text_color(s_date_shadow_layer, GColorBlack);
 

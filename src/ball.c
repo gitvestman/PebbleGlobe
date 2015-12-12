@@ -29,6 +29,9 @@ struct ball {
 #define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
       (framebufferdata[yoffset + (x)] = color);
 
+#define DRAW_ROUND_PIXEL( rowdata, x, color ) \
+      (rowdata[x] = color);
+
 static int8_t sqrt_lookup[4500];
 
 // http://en.wikipedia.org/wiki/Fast_inverse_square_root
@@ -54,7 +57,6 @@ void init_sqrt() {
 
 static void init_arccos(Ball ball) {
   // 0 to 90 deegreed in 0.5 degree steps
-  APP_LOG(APP_LOG_LEVEL_INFO, "init arccos");
   for (int a = 0; a < FIXED_90_DEG; a+=91) {
     int32_t x = (FIXED_180_DEG + cos_lookup(a) * ball->radius) / FIXED_360_DEG;
     ball->arccos[x] = a;
@@ -90,8 +92,10 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
   graphics_context_set_stroke_color(ctx, GColorWhite);
   GBitmap *framebuffer = graphics_capture_frame_buffer(ctx);
   GRect bounds = gbitmap_get_bounds(framebuffer);
+#ifndef PBL_ROUND
   uint8_t* framebufferdata = gbitmap_get_data(framebuffer);
   uint8_t framebuffer_bytes_per_row = gbitmap_get_bytes_per_row(framebuffer);
+#endif
   int coslat = cos_lookup(latitude_rotation);
   int sinlat = sin_lookup(latitude_rotation);
   uint_fast8_t centerx = ball->centerx + xdelta;
@@ -102,7 +106,13 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
   uint_fast8_t stopx = ((int)centerx + ball->radius) >= bounds.size.w ? (uint_fast8_t)bounds.size.w : (uint_fast8_t)(centerx + ball->radius);
 
   for (uint_fast8_t y = starty; y < stopy; y++) {
+#ifdef PBL_ROUND
+    GBitmapDataRowInfo info = gbitmap_get_data_row_info(framebuffer, y);
+    if ((int)startx < info.min_x) startx = info.min_x;
+    if ((int)stopx > info.max_x) stopx = info.max_x;
+#else
     uint_fast16_t yoffset = y*framebuffer_bytes_per_row;
+#endif
     bool firstx = false;
     int width = ball->radius;
     int ydiff = abs(y - centery);
@@ -148,31 +158,47 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 
         uint_fast8_t lineposition = ((latitude * ball->bitmapbounds.size.w) >> FIXED_360_DEG_SHIFT) * ball->bitmapwidth;
         uint_fast16_t rowposition = ((longitude * ball->bitmapbounds.size.w) >> FIXED_360_DEG_SHIFT);
+        uint8_t pixel = 0;
+        uint16_t byteposition = 0;
 #ifdef PBL_COLOR
 
-        uint8_t pixel = 0;
         if (ball->format == GBitmapFormat8Bit) {
-          uint16_t byteposition = lineposition + rowposition;
+          byteposition = lineposition + rowposition;
           if (byteposition < ball->bitmapsize) {
             pixel = ball->bitmap_data[byteposition];
-            DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
           }
         } else if (ball->format == GBitmapFormat4BitPalette) {
-          uint16_t byteposition = lineposition + (rowposition >> 1);
+          byteposition = lineposition + (rowposition >> 1);
           if (byteposition < ball->bitmapsize) {
             uint8_t byte = ball->bitmap_data[byteposition];
             pixel = ball->palette[(byte >> (1 - (rowposition & 0x01)) * 4) & 0x0F].argb;
-            DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
+          }
+        } else if (ball->format == GBitmapFormat2BitPalette) {
+          byteposition = lineposition + (rowposition >> 2);
+          if (byteposition < ball->bitmapsize) {
+            uint8_t byte = ball->bitmap_data[byteposition];
+            pixel = ball->palette[(byte >> (3 - (rowposition & 0x03)) * 2) & 0x03].argb;
           }
         }
 #else
-        uint16_t byteposition = lineposition + (rowposition >> 3);
+        byteposition = lineposition + (rowposition >> 3);
         if (byteposition < ball->bitmapsize) {
           uint8_t byte = ball->bitmap_data[byteposition];
-          uint8_t pixel = (byte >> (rowposition & 0x07)) & 1;
-          DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
+          pixel = (byte >> (rowposition & 0x07)) & 1;
         }
 #endif
+
+        if (byteposition < ball->bitmapsize) {
+#ifdef PBL_ROUND
+        /*if (x == ball->centerx)
+          APP_LOG(APP_LOG_LEVEL_INFO, "Round Draw position(%d, %d)", x, y);*/
+          DRAW_ROUND_PIXEL(info.data, x, pixel);
+#elif PBL_COLOR
+          DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
+#else
+          DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
+#endif
+        }
       }
     }
   }
