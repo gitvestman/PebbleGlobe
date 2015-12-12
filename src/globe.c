@@ -80,7 +80,7 @@ static void anim_stopped_handler(Animation* anim, bool finished, void* context) 
   animation_destroy(anim);
   animating = false;
   reset_ticks();
-  APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
 
 static void anim_update_handler(Animation* anim, AnimationProgress progress) {
