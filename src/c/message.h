@@ -1,12 +1,16 @@
 #pragma once
 
-//#define KEY_LONGITUDE 0
-//#define KEY_LATITUDE 1
-//#define KEY_TIMEZONE 2
-  
+typedef struct config {
+  bool showDate;
+  bool showSteps;
+  bool animations;
+  bool inverted;
+} Config;
+
 extern int currentlong;
 extern int currentlat;
 extern int16_t timezone_offset;
+extern Config app_config;
 
 void message_init();
 void message_deinit();

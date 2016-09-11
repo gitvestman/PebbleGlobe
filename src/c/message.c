@@ -4,36 +4,69 @@
 int currentlong;
 int currentlat;
 int16_t timezone_offset;
+Config app_config = { .showDate = true, .showSteps = false, .animations = true, .inverted = false };
+#define SETTINGS_KEY 1
+
+// Read settings from persistent storage
+static void prv_load_settings() {
+  // Read settings from persistent storage, if they exist
+  persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
+}
+
+// Save the settings to persistent storage
+static void prv_save_settings() {
+  persist_write_data(SETTINGS_KEY, &app_config, sizeof(app_config));
+}
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Read first item
   Tuple *t = dict_read_first(iterator);
 
-  // For all items
-  while(t != NULL) {
-    // Which key was received?
-    if( t->key == MESSAGE_KEY_KEY_LONGITUDE) {
-      currentlong = TRIG_MAX_ANGLE / 4 + TRIG_MAX_ANGLE * t->value->int32 / 360;
-    } else if (t->key == MESSAGE_KEY_KEY_LATITUDE) {
-      currentlat = TRIG_MAX_ANGLE / 2 - (TRIG_MAX_ANGLE / 4 - TRIG_MAX_ANGLE  * t->value->int32 / 360);
-    } else if (t->key == MESSAGE_KEY_KEY_TIMEZONE) {
-      timezone_offset = t->value->int32;
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Timezone offset received %d", (int)timezone_offset);
-    } else if (t->key == MESSAGE_KEY_Animations) {
-      bool animations = (t->value->int32 == 1);
-    } else if (t->key == MESSAGE_KEY_ShowDate) {
-      bool showDate = (t->value->int32 = 1);
-    } else if (t->key == MESSAGE_KEY_ShowSteps) {
-      bool showSteps = (t->value->int32 = 1);
-    } else if (t->key == MESSAGE_KEY_Inverted) {
-      bool inverted = (t->value->int32 = 1);
-    } else {
-      APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-    }
-
-    // Look for next item
-    t = dict_read_next(iterator);
+  // Longitude
+  Tuple *longitude_t = dict_find(iterator, MESSAGE_KEY_KEY_LONGITUDE);
+  if (longitude_t) {
+    currentlong = TRIG_MAX_ANGLE / 4 + TRIG_MAX_ANGLE * longitude_t->value->int32 / 360;
   }
+  // Latidute
+  Tuple *latitude_t = dict_find(iterator, MESSAGE_KEY_KEY_LATITUDE);
+  if (latitude_t) {
+    currentlat = TRIG_MAX_ANGLE / 2 - (TRIG_MAX_ANGLE / 4 - TRIG_MAX_ANGLE  * latitude_t->value->int32 / 360);
+  }
+  // timezone
+  Tuple *timezone_t = dict_find(iterator, MESSAGE_KEY_KEY_TIMEZONE);
+  if (timezone_t) {
+    timezone_offset = timezone_t->value->int32;
+  }
+
+  //   } else if (t->key == MESSAGE_KEY_Animations) {
+  //     app_config.animations = (t->value->int16 == 1);
+  //     APP_LOG(APP_LOG_LEVEL_INFO, "animations received %d", (int)t->value->int16);
+  //   } else if (t->key == MESSAGE_KEY_ShowDate) {
+  //     app_config.showDate = (t->value->int16 = 1);
+  //     APP_LOG(APP_LOG_LEVEL_INFO, "showDate received %d", (int)t->value->int16);
+  //   } else if (t->key == MESSAGE_KEY_ShowSteps) {
+  //     app_config.showSteps = (t->value->int16 = 1);
+  //     APP_LOG(APP_LOG_LEVEL_INFO, "showSteps received %d", (int)t->value->int16);
+  //   } else if (t->key == MESSAGE_KEY_Inverted) {
+  //     app_config.inverted = (t->value->int16 = 1);
+  //     APP_LOG(APP_LOG_LEVEL_INFO, "inverted received %d", (int)t->value->int16);
+  //   } else {
+  //     APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
+  //   }
+  //
+  //   // Look for next item
+  //   t = dict_read_next(iterator);
+  // }
+
+  // ShowDate
+  Tuple *showDate_t = dict_find(iterator, MESSAGE_KEY_ShowDate);
+  if (showDate_t) {
+    app_config.showDate = showDate_t->value->int32 == 1;
+    APP_LOG(APP_LOG_LEVEL_INFO, "showDate received %d", (int)t->value->int16);
+  }
+
+  // Save the new settings to persistent storage
+  prv_save_settings();
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -49,6 +82,7 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 }
 
 void message_init() {
+  prv_load_settings();
   // Register callbacks
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);

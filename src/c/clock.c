@@ -96,17 +96,19 @@ void init_time(Window *window) {
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
 
   text_layer_set_font(s_time_shadow_layer, s_time_font);
-  text_layer_set_font(s_date_shadow_layer, s_date_font);
   text_layer_set_text_alignment(s_time_shadow_layer, GTextAlignmentLeft);
-  text_layer_set_text_alignment(s_date_shadow_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_shadow_layer));
-  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_shadow_layer));
 
   text_layer_set_font(s_time_layer, s_time_font);
-  text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentLeft);
-  text_layer_set_text_alignment(s_date_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
+
+  text_layer_set_font(s_date_shadow_layer, s_date_font);
+  text_layer_set_text_alignment(s_date_shadow_layer, GTextAlignmentRight);
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_shadow_layer));
+
+  text_layer_set_font(s_date_layer, s_date_font);
+  text_layer_set_text_alignment(s_date_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
 }
 
@@ -129,15 +131,23 @@ void update_time() {
     strftime(timebuffer, sizeof(timebuffer), "%l:%M", tick_time);
   }
   strncpy(timeshadowbuffer, timebuffer, sizeof(timebuffer));
-  strftime(datebuffer, sizeof(datebuffer), "%a %e", tick_time);
-  strncpy(dateshadowbuffer, datebuffer, sizeof(timebuffer));
-
-  // Display the time and date
+  // Display the time
   text_layer_set_text(s_time_layer, timebuffer);
-  text_layer_set_text(s_date_layer, datebuffer);
   text_layer_set_text(s_time_shadow_layer, timeshadowbuffer);
-  text_layer_set_text(s_date_shadow_layer, dateshadowbuffer);
 
+  if (app_config.showDate) {
+    layer_set_hidden((Layer *)s_date_layer, false);
+    layer_set_hidden((Layer *)s_date_shadow_layer, false);
+
+    strftime(datebuffer, sizeof(datebuffer), "%a %e", tick_time);
+    strncpy(dateshadowbuffer, datebuffer, sizeof(timebuffer));
+
+    text_layer_set_text(s_date_layer, datebuffer);
+    text_layer_set_text(s_date_shadow_layer, dateshadowbuffer);
+  } else {
+    layer_set_hidden((Layer *)s_date_layer, true);
+    layer_set_hidden((Layer *)s_date_shadow_layer, true);
+  }
   // Calculate sun position
   struct tm *gm_time = gmtime(&now);
 #if PBL_PLATFORM_APLITE
