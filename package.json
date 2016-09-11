@@ -26,14 +26,15 @@
         "resources": {
             "media": [
                 {
+		    "menuItem": true,
                     "file": "images/globe_bw.png",
                     "name": "IMAGE_ICON",
-                    "type": "png"
+                    "type": "bitmap"
                 },
                 {
                     "file": "images/earth_place_dither180_bw.png",
                     "name": "IMAGE_GLOBE",
-                    "type": "png"
+                    "type": "bitmap"
                 }
             ]
         },

@@ -12,32 +12,23 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // For all items
   while(t != NULL) {
     // Which key was received?
-    switch(t->key) {
-    case MESSAGE_KEY_KEY_LONGITUDE:
+    if( t->key == MESSAGE_KEY_KEY_LONGITUDE) {
       currentlong = TRIG_MAX_ANGLE / 4 + TRIG_MAX_ANGLE * t->value->int32 / 360;
-      break;
-    case MESSAGE_KEY_KEY_LATITUDE:
+    } else if (t->key == MESSAGE_KEY_KEY_LATITUDE) {
       currentlat = TRIG_MAX_ANGLE / 2 - (TRIG_MAX_ANGLE / 4 - TRIG_MAX_ANGLE  * t->value->int32 / 360);
-      break;
-    case MESSAGE_KEY_KEY_TIMEZONE:
+    } else if (t->key == MESSAGE_KEY_KEY_TIMEZONE) {
       timezone_offset = t->value->int32;
       APP_LOG(APP_LOG_LEVEL_ERROR, "Timezone offset received %d", (int)timezone_offset);
-      break;
-    case MESSAGE_KEY_Animations:
-      bool animations = t->value->int32 == 1;
-      break;
-    case MESSAGE_KEY_ShowDate:
-      bool showDate = t->value->int32 = 1;
-      break;
-    case MESSAGE_KEY_ShowSteps:
-      bool showSteps = t->value->int32 = 1;
-      break;
-    case MESSAGE_KEY_Inverted:
-      bool inverted = t->value->int32 = 1;
-      break;
-    default:
+    } else if (t->key == MESSAGE_KEY_Animations) {
+      bool animations = (t->value->int32 == 1);
+    } else if (t->key == MESSAGE_KEY_ShowDate) {
+      bool showDate = (t->value->int32 = 1);
+    } else if (t->key == MESSAGE_KEY_ShowSteps) {
+      bool showSteps = (t->value->int32 = 1);
+    } else if (t->key == MESSAGE_KEY_Inverted) {
+      bool inverted = (t->value->int32 = 1);
+    } else {
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-      break;
     }
 
     // Look for next item
