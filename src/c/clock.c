@@ -46,8 +46,6 @@ static void prv_unobstructed_did_change(void *context) {
   int datex = bounds.size.w + datenx;
   int datey = bounds.size.h + dateny;
 
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "prv_unobstructed_did_change: w %d, h %d, x %d, y %d", bounds.size.w, bounds.size.h, datex, datey);
-
   // Move date textlayer
   layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,100,45));
 
@@ -55,6 +53,24 @@ static void prv_unobstructed_did_change(void *context) {
   layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,100,45));
   update_globe();
   spin_globe(0, 1);
+}
+
+void set_colors() {
+  GColor background = GColorClear;
+  GColor shadowcolor = app_config.inverted ? GColorWhite : GColorBlack;
+  GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
+
+  text_layer_set_background_color(s_time_layer, background);
+  text_layer_set_text_color(s_time_layer, textcolor);
+
+  text_layer_set_background_color(s_time_shadow_layer, background);
+  text_layer_set_text_color(s_time_shadow_layer, shadowcolor);
+
+  text_layer_set_background_color(s_date_layer, background);
+  text_layer_set_text_color(s_date_layer, textcolor);
+
+  text_layer_set_background_color(s_date_shadow_layer, background);
+  text_layer_set_text_color(s_date_shadow_layer, shadowcolor);
 }
 
 void init_time(Window *window) {
@@ -73,23 +89,15 @@ void init_time(Window *window) {
 
   // Create time textlayer
   s_time_layer = text_layer_create(GRect(timex, timey, 130, 45));
-  text_layer_set_background_color(s_time_layer, GColorClear);
-  text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create time shadow textlayer
   s_time_shadow_layer = text_layer_create(GRect(timex - 2,timey + 2,130,45));
-  text_layer_set_background_color(s_time_shadow_layer, GColorClear);
-  text_layer_set_text_color(s_time_shadow_layer, GColorBlack);
 
   // Create date textlayer
   s_date_layer = text_layer_create(GRect(datex,datey,100,45));
-  text_layer_set_background_color(s_date_layer, GColorClear);
-  text_layer_set_text_color(s_date_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 
   // Create date shadow textlayer
   s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,100,45));
-  text_layer_set_background_color(s_date_shadow_layer, GColorClear);
-  text_layer_set_text_color(s_date_shadow_layer, GColorBlack);
 
   // Create Fonts
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
@@ -110,9 +118,15 @@ void init_time(Window *window) {
   text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
+
+  if (!app_config.showDate) {
+    layer_set_hidden((Layer *)s_date_layer, true);
+    layer_set_hidden((Layer *)s_date_shadow_layer, true);
+  }
 }
 
 void update_time() {
+  set_colors();
   // Get a tm structure
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);

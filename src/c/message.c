@@ -41,28 +41,20 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   //   } else if (t->key == MESSAGE_KEY_Animations) {
   //     app_config.animations = (t->value->int16 == 1);
   //     APP_LOG(APP_LOG_LEVEL_INFO, "animations received %d", (int)t->value->int16);
-  //   } else if (t->key == MESSAGE_KEY_ShowDate) {
-  //     app_config.showDate = (t->value->int16 = 1);
-  //     APP_LOG(APP_LOG_LEVEL_INFO, "showDate received %d", (int)t->value->int16);
   //   } else if (t->key == MESSAGE_KEY_ShowSteps) {
   //     app_config.showSteps = (t->value->int16 = 1);
   //     APP_LOG(APP_LOG_LEVEL_INFO, "showSteps received %d", (int)t->value->int16);
-  //   } else if (t->key == MESSAGE_KEY_Inverted) {
-  //     app_config.inverted = (t->value->int16 = 1);
-  //     APP_LOG(APP_LOG_LEVEL_INFO, "inverted received %d", (int)t->value->int16);
-  //   } else {
-  //     APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);
-  //   }
-  //
-  //   // Look for next item
-  //   t = dict_read_next(iterator);
-  // }
+
+  // Inverted
+  Tuple *inverted_t = dict_find(iterator, MESSAGE_KEY_Inverted);
+  if (inverted_t) {
+    app_config.inverted = inverted_t->value->int32 == 1;
+  }
 
   // ShowDate
   Tuple *showDate_t = dict_find(iterator, MESSAGE_KEY_ShowDate);
   if (showDate_t) {
     app_config.showDate = showDate_t->value->int32 == 1;
-    APP_LOG(APP_LOG_LEVEL_INFO, "showDate received %d", (int)t->value->int16);
   }
 
   // Save the new settings to persistent storage

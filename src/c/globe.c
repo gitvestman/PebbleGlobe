@@ -39,7 +39,7 @@ void set_sun_position(uint16_t longitude, int16_t latitude) {
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
-  graphics_context_set_fill_color(ctx, GColorBlack);
+  graphics_context_set_fill_color(ctx, app_config.inverted ? GColorWhite : GColorBlack);
   graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
 
   if (!animating) {
