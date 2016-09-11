@@ -190,7 +190,7 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
         uint16_t byteposition = lineposition + (rowposition >> 3);
         if (byteposition < ball->bitmapsize) {
           uint8_t byte = ball->bitmap_data[byteposition];
-          pixel = (byte >> (rowposition & 0x07)) & 1;
+          pixel = (byte >> (7 - (rowposition & 0x07))) & 1;
         }
 #endif
 
