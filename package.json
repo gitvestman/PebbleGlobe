@@ -12,7 +12,7 @@
             "health"
         ],
         "displayName": "Globe",
-        "enableMultiJS": false,
+        "enableMultiJS": true,
         "messageKeys": [
             "KEY_LONGITUDE",
             "KEY_LATITUDE",
@@ -26,7 +26,6 @@
         "resources": {
             "media": [
                 {
-		    "menuItem": true,
                     "file": "images/globe_bw.png",
                     "name": "IMAGE_ICON",
                     "type": "bitmap"
