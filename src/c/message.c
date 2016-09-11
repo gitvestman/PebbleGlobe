@@ -3,25 +3,37 @@
 
 int currentlong;
 int currentlat;
-int_fast16_t timezone_offset;
+int16_t timezone_offset;
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-    // Read first item
+  // Read first item
   Tuple *t = dict_read_first(iterator);
 
   // For all items
   while(t != NULL) {
     // Which key was received?
     switch(t->key) {
-    case KEY_LONGITUDE:
+    case MESSAGE_KEY_KEY_LONGITUDE:
       currentlong = TRIG_MAX_ANGLE / 4 + TRIG_MAX_ANGLE * t->value->int32 / 360;
       break;
-    case KEY_LATITUDE:
+    case MESSAGE_KEY_KEY_LATITUDE:
       currentlat = TRIG_MAX_ANGLE / 2 - (TRIG_MAX_ANGLE / 4 - TRIG_MAX_ANGLE  * t->value->int32 / 360);
       break;
-    case KEY_TIMEZONE:
+    case MESSAGE_KEY_KEY_TIMEZONE:
       timezone_offset = t->value->int32;
       APP_LOG(APP_LOG_LEVEL_ERROR, "Timezone offset received %d", (int)timezone_offset);
+      break;
+    case MESSAGE_KEY_Animations:
+      bool animations = t->value->int32 == 1;
+      break;
+    case MESSAGE_KEY_ShowDate:
+      bool showDate = t->value->int32 = 1;
+      break;
+    case MESSAGE_KEY_ShowSteps:
+      bool showSteps = t->value->int32 = 1;
+      break;
+    case MESSAGE_KEY_Inverted:
+      bool inverted = t->value->int32 = 1;
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Key %d not recognized!", (int)t->key);

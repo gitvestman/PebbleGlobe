@@ -1,19 +1,27 @@
 {
     "author": "Vestman.Net",
-    "dependencies": {},
+    "dependencies": {
+        "pebble-clay": "^1.0.2"
+    },
     "keywords": [],
     "name": "globe",
     "pebble": {
         "capabilities": [
-            "location"
+            "location",
+            "configurable",
+            "health"
         ],
         "displayName": "Globe",
         "enableMultiJS": false,
-        "messageKeys": {
-            "KEY_LATITUDE": 1,
-            "KEY_LONGITUDE": 0,
-            "KEY_TIMEZONE": 2
-        },
+        "messageKeys": [
+            "KEY_LONGITUDE",
+            "KEY_LATITUDE",
+            "KEY_TIMEZONE",
+            "ShowDate",
+            "Inverted",
+            "ShowSteps",
+            "Animations"
+        ],
         "projectType": "native",
         "resources": {
             "media": [
