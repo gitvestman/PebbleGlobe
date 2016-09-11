@@ -1,0 +1,45 @@
+{
+    "author": "Vestman.Net",
+    "dependencies": {},
+    "keywords": [],
+    "name": "globe",
+    "pebble": {
+        "capabilities": [
+            "location"
+        ],
+        "displayName": "Globe",
+        "enableMultiJS": false,
+        "messageKeys": {
+            "KEY_LATITUDE": 1,
+            "KEY_LONGITUDE": 0,
+            "KEY_TIMEZONE": 2
+        },
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/globe_bw.png",
+                    "name": "IMAGE_ICON",
+                    "type": "png"
+                },
+                {
+                    "file": "images/earth_place_dither180_bw.png",
+                    "name": "IMAGE_GLOBE",
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite"
+        ],
+        "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.11.0"
+}
