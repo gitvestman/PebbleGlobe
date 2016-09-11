@@ -3,6 +3,7 @@
 #include "message.h"
 #include "globe.h"
 
+static Layer *s_window_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_date_layer;
 static TextLayer *s_time_shadow_layer;
@@ -14,13 +15,13 @@ static long tick_count = 0;
 #ifdef PBL_ROUND
 static int timex = 25;
 static int timey = 10;
-static int datex = 40;
-static int datey = 130;
+static int datenx = -150;
+static int dateny = -38;
 #else
 static int timex = 2;
 static int timey = 0;
-static int datex = 40;
-static int datey = 130;
+static int datenx = -100;
+static int dateny = -38;
 #endif
 
 // Change to minute ticking after a while to save battery
@@ -39,12 +40,39 @@ void reset_ticks() {
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
 }
 
+static void prv_unobstructed_did_change(void *context) {
+  // Get the total available screen real-estate
+  GRect bounds = layer_get_unobstructed_bounds(s_window_layer);
+  int datex = bounds.size.w + datenx;
+  int datey = bounds.size.h + dateny;
+
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "prv_unobstructed_did_change: w %d, h %d, x %d, y %d", bounds.size.w, bounds.size.h, datex, datey);
+
+  // Move date textlayer
+  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,100,45));
+
+  // Move date shadow textlayer
+  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,100,45));
+  update_globe();
+  spin_globe(0, 1);
+}
+
 void init_time(Window *window) {
+  s_window_layer = window_get_root_layer(window);
   //Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
+  UnobstructedAreaHandlers handlers = {
+    .did_change = prv_unobstructed_did_change
+  };
+  unobstructed_area_service_subscribe(handlers, NULL);
+
+  GRect bounds = layer_get_bounds(s_window_layer);
+  int datex = bounds.size.w + datenx;
+  int datey = bounds.size.h + dateny;
+
   // Create time textlayer
-  s_time_layer = text_layer_create(GRect(timex,timey,130,45));
+  s_time_layer = text_layer_create(GRect(timex, timey, 130, 45));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, COLOR_FALLBACK(GColorPastelYellow , GColorWhite));
 

@@ -9,6 +9,7 @@
 
 static GBitmap *s_globe_bitmap;
 static Layer *s_simple_bg_layer;
+static Layer *window_layer;
 
 static Ball globe;
 
@@ -111,8 +112,8 @@ void spin_globe(int delay, int direction) {
 void init_globe(Window *window) {
   init_sqrt();
 
-  Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(window_layer);
+  window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_unobstructed_bounds(window_layer);
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
   xres = bounds.size.w;
@@ -129,6 +130,16 @@ void init_globe(Window *window) {
   layer_set_update_proc(s_simple_bg_layer, bg_update_proc);
   layer_add_child(window_get_root_layer(window), s_simple_bg_layer);
   spin_globe(ANIMATION_INITIAL_DELAY, 1);
+}
+
+void update_globe() {
+  GRect bounds = layer_get_unobstructed_bounds(window_layer);
+  globecenterx = bounds.size.w / 2;
+  globecentery = bounds.size.h / 2;
+  xres = bounds.size.w;
+  yres = bounds.size.h;
+
+  update_ball(globe, globeradius, globecenterx, globecentery);
 }
 
 void destroy_globe() {

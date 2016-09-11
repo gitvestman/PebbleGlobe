@@ -23,7 +23,7 @@ struct ball {
 };
 
 #define DRAW_BW_PIXEL( framebuffer, x, yoffset, color ) \
-      (color != 0 ? (framebufferdata[yoffset + ((x) >> 3)] |= ((color) << ((x) & 0x07))) : \
+      (color != 0 ? (framebufferdata[yoffset + ((x) >> 3)] |= ((1) << ((x) & 0x07))) : \
                     (framebufferdata[yoffset + ((x) >> 3)] &= ~((1) << ((x) & 0x07))));
 
 #define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
@@ -81,6 +81,14 @@ Ball create_ball(GBitmap *bitmap, int radius, int x, int y) {
   ball->palette = gbitmap_get_palette(bitmap);
 #endif
   return ball;
+}
+
+void update_ball(Ball ball, int radius, int x, int y) {
+  ball->bitmapsize = ball->bitmapwidth * ball->bitmapbounds.size.h;
+  ball->radius = radius;
+  ball->radiusx2 = radius * radius;
+  ball->centerx = x;
+  ball->centery = y;
 }
 
 void destroy_ball(Ball ball) {
