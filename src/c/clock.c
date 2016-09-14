@@ -49,10 +49,10 @@ static void prv_unobstructed_did_change(void *context) {
   int datey = bounds.size.h + dateny;
 
   // Move date textlayer
-  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,120,45));
+  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,118,45));
 
   // Move date shadow textlayer
-  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,120,45));
+  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,118,45));
   update_globe();
   if (app_config.animations)
     spin_globe(0, 1);
@@ -107,10 +107,10 @@ void init_time(Window *window) {
   s_time_shadow_layer = text_layer_create(GRect(timex - 2,timey + 2,130,45));
 
   // Create date textlayer
-  s_date_layer = text_layer_create(GRect(datex,datey,120,45));
+  s_date_layer = text_layer_create(GRect(datex,datey,118,45));
 
   // Create date shadow textlayer
-  s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,120,45));
+  s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,118,45));
 
   // Create Fonts
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
