@@ -20,6 +20,18 @@ module.exports = [
         "defaultValue": false,
         "label": "Inverted Colors"
       },
+      {
+        "type": "toggle",
+        "messageKey": "Animations",
+        "label": "Enable Animations on shake",
+        "defaultValue": true
+      }
+      {
+        "type": "toggle",
+        "messageKey": "Bold",
+        "label": "Use Bold Fonts",
+        "defaultValue": false
+      }
     ]
   },
   {
@@ -27,7 +39,7 @@ module.exports = [
     "items": [
       {
         "type": "heading",
-        "defaultValue": "More Settings"
+        "defaultValue": "Field Settings"
       },
       {
         "type": "toggle",
@@ -41,12 +53,6 @@ module.exports = [
         "label": "Show Steps",
         "defaultValue": false
       },
-      {
-        "type": "toggle",
-        "messageKey": "Animations",
-        "label": "Enable Animations on shake",
-        "defaultValue": true
-      }
     ]
   },
   {

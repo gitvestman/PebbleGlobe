@@ -20,7 +20,8 @@
             "ShowDate",
             "Inverted",
             "ShowSteps",
-            "Animations"
+            "Animations",
+            "Bold"
         ],
         "projectType": "native",
         "resources": {

@@ -1,10 +1,11 @@
 #include <pebble.h>
 #include "message.h"
 
+Layer* root_layer;
 int currentlong;
 int currentlat;
 int16_t timezone_offset;
-Config app_config = { .showDate = true, .showSteps = false, .animations = true, .inverted = false };
+Config app_config = { .showDate = true, .showSteps = false, .animations = true, .inverted = false, .bold = false };
 #define SETTINGS_KEY 1
 
 // Read settings from persistent storage
@@ -19,9 +20,6 @@ static void prv_save_settings() {
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  // Read first item
-  Tuple *t = dict_read_first(iterator);
-
   // Longitude
   Tuple *longitude_t = dict_find(iterator, MESSAGE_KEY_KEY_LONGITUDE);
   if (longitude_t) {
@@ -48,6 +46,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     app_config.inverted = inverted_t->value->int32 == 1;
   }
 
+  // Bold
+  Tuple *bold_t = dict_find(iterator, MESSAGE_KEY_Bold);
+  if (bold_t) {
+    app_config.bold = bold_t->value->int32 == 1;
+  }
+
   // ShowDate
   Tuple *showDate_t = dict_find(iterator, MESSAGE_KEY_ShowDate);
   if (showDate_t) {
@@ -57,11 +61,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Animation
   Tuple *animations_t = dict_find(iterator, MESSAGE_KEY_Animations);
   if (animations_t) {
-    app_config.inverted = animations_t->value->int32 == 1;
+    app_config.animations = animations_t->value->int32 == 1;
   }
 
   // Save the new settings to persistent storage
   prv_save_settings();
+  layer_mark_dirty(root_layer);
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -76,7 +81,8 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-void message_init() {
+void message_init(Window *window) {
+  root_layer = window_get_root_layer(window);
   prv_load_settings();
   // Register callbacks
   app_message_register_inbox_received(inbox_received_callback);

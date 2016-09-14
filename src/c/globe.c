@@ -34,8 +34,10 @@ void set_sun_position(uint16_t longitude, int16_t latitude) {
   //APP_LOG(APP_LOG_LEVEL_INFO, "set_sun_position: sunlong %d, sunlat %d", sunlong, sunlat);
   if (animating) {
     update_animaion_parameters();
+  } else {
+    layer_mark_dirty(s_simple_bg_layer);
   }
-  gpsposition = !gpsposition;
+  gpsposition = true;
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
@@ -53,12 +55,6 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
     draw_gps_position(globe, layer, ctx, globelat, globelong, currentlong, currentlat);
   }
 }
-
-void redraw_globe() {
-  // Request a redraw
-  layer_mark_dirty(s_simple_bg_layer);
-}
-
 
 static int longitude_start = 0;
 static int longitude_length = 0;
@@ -139,12 +135,14 @@ void init_globe(Window *window) {
 
 void update_globe() {
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
+  layer_set_bounds(s_simple_bg_layer, bounds);
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
   xres = bounds.size.w;
   yres = bounds.size.h;
 
   update_ball(globe, globeradius, globecenterx, globecentery);
+  layer_mark_dirty(s_simple_bg_layer);
 }
 
 void destroy_globe() {

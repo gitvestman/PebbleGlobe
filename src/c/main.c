@@ -50,7 +50,7 @@ void handle_init(void) {
   accel_tap_service_subscribe(tap_handler);
 
   // Register callbacks
-  message_init();
+  message_init(main_window);
 }
 
 void handle_deinit(void) {

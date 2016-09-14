@@ -9,18 +9,20 @@ static TextLayer *s_date_layer;
 static TextLayer *s_time_shadow_layer;
 static TextLayer *s_date_shadow_layer;
 static GFont s_time_font;
+static GFont s_time_bold_font;
 static GFont s_date_font;
+static GFont s_date_bold_font;
 static long tick_count = 0;
 
 #ifdef PBL_ROUND
 static int timex = 25;
 static int timey = 10;
-static int datenx = -150;
+static int datenx = -170;
 static int dateny = -38;
 #else
 static int timex = 2;
 static int timey = 0;
-static int datenx = -100;
+static int datenx = -120;
 static int dateny = -38;
 #endif
 
@@ -47,18 +49,16 @@ static void prv_unobstructed_did_change(void *context) {
   int datey = bounds.size.h + dateny;
 
   // Move date textlayer
-  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,100,45));
+  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,120,45));
 
   // Move date shadow textlayer
-  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,100,45));
+  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,120,45));
   update_globe();
   if (app_config.animations)
     spin_globe(0, 1);
-  else 
-    redraw_globe();
 }
 
-void set_colors() {
+static void set_colors() {
   GColor background = GColorClear;
   GColor shadowcolor = app_config.inverted ? GColorWhite : GColorBlack;
   GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
@@ -74,6 +74,16 @@ void set_colors() {
 
   text_layer_set_background_color(s_date_shadow_layer, background);
   text_layer_set_text_color(s_date_shadow_layer, shadowcolor);
+}
+
+static void set_fonts() {
+  text_layer_set_font(s_time_shadow_layer, app_config.bold ? s_time_bold_font : s_time_font);
+
+  text_layer_set_font(s_time_layer, app_config.bold ? s_time_bold_font : s_time_font);
+
+  text_layer_set_font(s_date_shadow_layer, app_config.bold ? s_date_bold_font : s_date_font);
+
+  text_layer_set_font(s_date_layer, app_config.bold ? s_date_bold_font : s_date_font);
 }
 
 void init_time(Window *window) {
@@ -97,28 +107,26 @@ void init_time(Window *window) {
   s_time_shadow_layer = text_layer_create(GRect(timex - 2,timey + 2,130,45));
 
   // Create date textlayer
-  s_date_layer = text_layer_create(GRect(datex,datey,100,45));
+  s_date_layer = text_layer_create(GRect(datex,datey,120,45));
 
   // Create date shadow textlayer
-  s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,100,45));
+  s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,120,45));
 
   // Create Fonts
   s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
+  s_time_bold_font = fonts_get_system_font(FONT_KEY_BITHAM_42_MEDIUM_NUMBERS);
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
+  s_date_bold_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 
-  text_layer_set_font(s_time_shadow_layer, s_time_font);
   text_layer_set_text_alignment(s_time_shadow_layer, GTextAlignmentLeft);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_shadow_layer));
 
-  text_layer_set_font(s_time_layer, s_time_font);
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentLeft);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
 
-  text_layer_set_font(s_date_shadow_layer, s_date_font);
   text_layer_set_text_alignment(s_date_shadow_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_shadow_layer));
 
-  text_layer_set_font(s_date_layer, s_date_font);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
 
@@ -126,10 +134,14 @@ void init_time(Window *window) {
     layer_set_hidden((Layer *)s_date_layer, true);
     layer_set_hidden((Layer *)s_date_shadow_layer, true);
   }
+
+  set_colors();
+  set_fonts();
 }
 
 void update_time() {
   set_colors();
+  set_fonts();
   // Get a tm structure
   time_t now = time(NULL);
   struct tm *tick_time = localtime(&now);

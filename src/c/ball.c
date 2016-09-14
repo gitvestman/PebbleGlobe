@@ -24,7 +24,7 @@ struct ball {
 };
 
 #define DRAW_BW_PIXEL( framebuffer, x, yoffset, color ) \
-      (color != 0 ? (framebufferdata[yoffset + ((x) >> 3)] |= ((1) << ((x) & 0x07))) : \
+      ((color) != 0 ? (framebufferdata[yoffset + ((x) >> 3)] |= ((1) << ((x) & 0x07))) : \
                     (framebufferdata[yoffset + ((x) >> 3)] &= ~((1) << ((x) & 0x07))));
 
 #define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
@@ -198,11 +198,11 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 #ifdef PBL_ROUND
         /*if (x == ball->centerx)
           APP_LOG(APP_LOG_LEVEL_INFO, "Round Draw position(%d, %d)", x, y);*/
-        DRAW_ROUND_PIXEL(info.data, x, pixel);
+        DRAW_ROUND_PIXEL(info.data, x, app_config.inverted ? pixel ^ 0x7F : pixel);
 #elif PBL_COLOR
-        DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
+        DRAW_COLOR_PIXEL(framebuffer, x, yoffset, app_config.inverted ? pixel ^ 0x7F : pixel);
 #else
-        DRAW_BW_PIXEL(framebuffer, x, yoffset, app_config.inverted ? pixel ^ 1 : pixel);
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, app_config.inverted ? pixel ^ 0x01 : pixel);
 #endif
       }
     }
