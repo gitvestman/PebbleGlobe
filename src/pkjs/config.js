@@ -12,19 +12,13 @@ module.exports = [
     "items": [
       {
         "type": "heading",
-        "defaultValue": "Colors"
+        "defaultValue": "Appearance"
       },
       {
         "type": "toggle",
         "messageKey": "Inverted",
         "defaultValue": false,
         "label": "Inverted Colors"
-      },
-      {
-        "type": "toggle",
-        "messageKey": "Animations",
-        "label": "Enable Animations on shake",
-        "defaultValue": true
       },
       {
         "type": "toggle",
@@ -39,20 +33,20 @@ module.exports = [
     "items": [
       {
         "type": "heading",
-        "defaultValue": "Field Settings"
+        "defaultValue": "Features"
+      },
+      {
+        "type": "toggle",
+        "messageKey": "Animations",
+        "label": "Enable Animations on shake",
+        "defaultValue": true
       },
       {
         "type": "toggle",
         "messageKey": "ShowDate",
         "label": "Show Date",
         "defaultValue": true
-      },
-      {
-        "type": "toggle",
-        "messageKey": "ShowSteps",
-        "label": "Show Steps",
-        "defaultValue": false
-      },
+       }
     ]
   },
   {

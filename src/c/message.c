@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "message.h"
+#include "clock.h"
 
 Layer* root_layer;
 int currentlong;
@@ -12,6 +13,7 @@ Config app_config = { .showDate = true, .showSteps = false, .animations = true, 
 static void prv_load_settings() {
   // Read settings from persistent storage, if they exist
   persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
+  update_time();
 }
 
 // Save the settings to persistent storage
@@ -66,6 +68,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
   // Save the new settings to persistent storage
   prv_save_settings();
+  update_time();
   layer_mark_dirty(root_layer);
 }
 
