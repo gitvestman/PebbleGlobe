@@ -52,7 +52,10 @@ static void prv_unobstructed_did_change(void *context) {
   // Move date shadow textlayer
   layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,100,45));
   update_globe();
-  spin_globe(0, 1);
+  if (app_config.animations)
+    spin_globe(0, 1);
+  else 
+    redraw_globe();
 }
 
 void set_colors() {

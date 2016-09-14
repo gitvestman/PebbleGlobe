@@ -44,7 +44,7 @@ module.exports = [
       {
         "type": "toggle",
         "messageKey": "Animations",
-        "label": "Enable Animations",
+        "label": "Enable Animations on shake",
         "defaultValue": true
       }
     ]

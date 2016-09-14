@@ -19,7 +19,8 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
   }
 
   last_tap = seconds;
-  spin_globe(0, direction);
+  if (app_config.animations)
+    spin_globe(0, direction);
 }
 
 static void main_window_load(Window *window) {

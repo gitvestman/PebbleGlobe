@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "ball.h"
+#include "message.h"
 
 #define FIXED_360_DEG 0x10000
 #define FIXED_360_DEG_SHIFT 16
@@ -201,7 +202,7 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 #elif PBL_COLOR
         DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
 #else
-        DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, app_config.inverted ? pixel ^ 1 : pixel);
 #endif
       }
     }

@@ -54,6 +54,11 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   }
 }
 
+void redraw_globe() {
+  // Request a redraw
+  layer_mark_dirty(s_simple_bg_layer);
+}
+
 
 static int longitude_start = 0;
 static int longitude_length = 0;
@@ -120,9 +125,9 @@ void init_globe(Window *window) {
   yres = bounds.size.h;
   // Create GBitmap, then set to created BitmapLayer
   s_globe_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GLOBE);
-  int bytes = gbitmap_get_bytes_per_row(s_globe_bitmap);
+  //int bytes = gbitmap_get_bytes_per_row(s_globe_bitmap);
   //APP_LOG(APP_LOG_LEVEL_INFO, "Bytes per row: %d", bytes);
-  GBitmapFormat format = gbitmap_get_format(s_globe_bitmap);
+  //GBitmapFormat format = gbitmap_get_format(s_globe_bitmap);
   //APP_LOG(APP_LOG_LEVEL_INFO, "Bitmap format: %d", (int)format);
   globe = create_ball(s_globe_bitmap, globeradius, globecenterx, globecentery);
 

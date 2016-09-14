@@ -38,9 +38,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     timezone_offset = timezone_t->value->int32;
   }
 
-  //   } else if (t->key == MESSAGE_KEY_Animations) {
-  //     app_config.animations = (t->value->int16 == 1);
-  //     APP_LOG(APP_LOG_LEVEL_INFO, "animations received %d", (int)t->value->int16);
   //   } else if (t->key == MESSAGE_KEY_ShowSteps) {
   //     app_config.showSteps = (t->value->int16 = 1);
   //     APP_LOG(APP_LOG_LEVEL_INFO, "showSteps received %d", (int)t->value->int16);
@@ -55,6 +52,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *showDate_t = dict_find(iterator, MESSAGE_KEY_ShowDate);
   if (showDate_t) {
     app_config.showDate = showDate_t->value->int32 == 1;
+  }
+
+  // Animation
+  Tuple *animations_t = dict_find(iterator, MESSAGE_KEY_Animations);
+  if (animations_t) {
+    app_config.inverted = animations_t->value->int32 == 1;
   }
 
   // Save the new settings to persistent storage
