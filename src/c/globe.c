@@ -117,6 +117,7 @@ void init_globe(Window *window) {
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
+  if (globecentery > 40) globecentery += 10;
   xres = bounds.size.w;
   yres = bounds.size.h;
   // Create GBitmap, then set to created BitmapLayer
@@ -138,6 +139,7 @@ void update_globe() {
   layer_set_bounds(s_simple_bg_layer, bounds);
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
+  if (globecentery > 40) globecentery += 10;
   xres = bounds.size.w;
   yres = bounds.size.h;
 
