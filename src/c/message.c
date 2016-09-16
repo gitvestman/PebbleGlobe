@@ -94,7 +94,7 @@ void message_init(Window *window) {
   app_message_register_outbox_sent(outbox_sent_callback);
 
   // Open AppMessage
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+  app_message_open(320, 0);
 }
 
 void message_deinit() {
