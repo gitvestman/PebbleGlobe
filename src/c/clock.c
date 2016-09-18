@@ -169,7 +169,7 @@ void update_time() {
     layer_set_hidden((Layer *)s_date_shadow_layer, false);
 
     strftime(datebuffer, sizeof(datebuffer), "%a %e", tick_time);
-    strncpy(dateshadowbuffer, datebuffer, sizeof(timebuffer));
+    strncpy(dateshadowbuffer, datebuffer, sizeof(datebuffer));
 
     text_layer_set_text(s_date_layer, datebuffer);
     text_layer_set_text(s_date_shadow_layer, dateshadowbuffer);

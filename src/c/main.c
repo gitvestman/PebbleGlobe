@@ -1,6 +1,7 @@
 #include <pebble.h>
 #include "clock.h"
-#include "math.h"
+//#include "math.h"
+#include "health.h"
 #include "globe.h"
 #include "battery.h"
 #include "message.h"
@@ -24,6 +25,7 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
 }
 
 static void main_window_load(Window *window) {
+  init_health(main_window);
   init_globe(main_window);
   init_time(main_window);
   init_battery(main_window);
@@ -31,6 +33,7 @@ static void main_window_load(Window *window) {
 }
 
 static void main_window_unload(Window *window) {
+  destroy_health();
   destroy_globe();
   destroy_time();
   destroy_battery();

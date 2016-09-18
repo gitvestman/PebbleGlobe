@@ -14,6 +14,7 @@ static void prv_load_settings() {
   // Read settings from persistent storage, if they exist
   persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
   update_time();
+  layer_mark_dirty(root_layer);
 }
 
 // Save the settings to persistent storage
@@ -38,10 +39,6 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     timezone_offset = timezone_t->value->int32;
   }
 
-  //   } else if (t->key == MESSAGE_KEY_ShowSteps) {
-  //     app_config.showSteps = (t->value->int16 = 1);
-  //     APP_LOG(APP_LOG_LEVEL_INFO, "showSteps received %d", (int)t->value->int16);
-
   // Inverted
   Tuple *inverted_t = dict_find(iterator, MESSAGE_KEY_Inverted);
   if (inverted_t) {
@@ -58,6 +55,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *showDate_t = dict_find(iterator, MESSAGE_KEY_ShowDate);
   if (showDate_t) {
     app_config.showDate = showDate_t->value->int32 == 1;
+  }
+
+  // ShowSteps
+  Tuple *showSteps_t = dict_find(iterator, MESSAGE_KEY_ShowHealth);
+  if (showSteps_t) {
+    app_config.showSteps = showSteps_t->value->int32 == 1;
   }
 
   // Animation

@@ -13,6 +13,7 @@ static Layer *window_layer;
 
 static Ball globe;
 
+static int8_t maxgloberadius = 60;
 static int8_t globeradius = 60;
 static uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 90;
@@ -22,7 +23,7 @@ static int yres = 0;
 static int sunlong = 0;
 static int sunlat = 0;
 static int animation_direction = 1;
-static bool animating = true;
+bool animating = true;
 static int animation_count;
 static bool gpsposition = 0;
 
@@ -41,9 +42,6 @@ void set_sun_position(uint16_t longitude, int16_t latitude) {
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
-  graphics_context_set_fill_color(ctx, app_config.inverted ? GColorWhite : GColorBlack);
-  graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
   if (!animating) {
     globelong = sunlong;
     globelat = sunlat;
@@ -117,7 +115,9 @@ void init_globe(Window *window) {
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
-  if (globecentery > 40) globecentery += 10;
+  #ifdef PBL_RECT
+  if (globecentery > 60) globecentery += 10;
+  #endif
   xres = bounds.size.w;
   yres = bounds.size.h;
   // Create GBitmap, then set to created BitmapLayer
@@ -137,9 +137,13 @@ void init_globe(Window *window) {
 void update_globe() {
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   layer_set_bounds(s_simple_bg_layer, bounds);
+  globeradius = bounds.size.h / 2;
+  if (globeradius > maxgloberadius) globeradius = maxgloberadius;
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
-  if (globecentery > 40) globecentery += 10;
+  #ifdef PBL_RECT
+  if (globecentery > 60) globecentery += 10;
+  #endif
   xres = bounds.size.w;
   yres = bounds.size.h;
 

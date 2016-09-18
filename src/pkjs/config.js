@@ -46,6 +46,12 @@ module.exports = [
         "messageKey": "ShowDate",
         "label": "Show Date",
         "defaultValue": true
+       },
+      {
+        "type": "toggle",
+        "messageKey": "ShowHealth",
+        "label": "Show Health Info",
+        "defaultValue": true
        }
     ]
   },
