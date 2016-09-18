@@ -51,7 +51,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "ShowHealth",
         "label": "Show Health Info",
-        "defaultValue": true
+        "defaultValue": false
        }
     ]
   },
