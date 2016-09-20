@@ -23,22 +23,23 @@ static int yres = 0;
 static int sunlong = 0;
 static int sunlat = 0;
 static int animation_direction = 1;
-bool animating = true;
 static int animation_count;
 static bool gpsposition = 0;
+bool animating = true;
+bool firstframe = true;
 
-static void update_animaion_parameters();
+static void update_animation_parameters();
 
 void set_sun_position(uint16_t longitude, int16_t latitude) {
   sunlong = longitude;
   sunlat = latitude;
   //APP_LOG(APP_LOG_LEVEL_INFO, "set_sun_position: sunlong %d, sunlat %d", sunlong, sunlat);
   if (animating) {
-    update_animaion_parameters();
+    update_animation_parameters();
   } else {
     layer_mark_dirty(s_simple_bg_layer);
   }
-  gpsposition = true;
+  gpsposition = !gpsposition;
 }
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
@@ -68,11 +69,12 @@ static void anim_started_handler(Animation* anim, void* context) {
   latitude_start = globelat;
   latitude_length = sunlat - globelat;
   animating = true;
+  firstframe = true;
   animation_count = 0;
   tick_timer_service_unsubscribe();
 }
 
-static void update_animaion_parameters() {
+static void update_animation_parameters() {
   longitude_length = abs(sunlong - longitude_start) + FIXED_360_DEG;
 }
 
@@ -87,6 +89,7 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   layer_mark_dirty(s_simple_bg_layer);
+  if (animation_count > 1) firstframe = false;
   animation_count++;
 }
 

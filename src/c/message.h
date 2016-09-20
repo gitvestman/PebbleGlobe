@@ -2,7 +2,7 @@
 
 typedef struct config {
   bool showDate;
-  bool showSteps;
+  bool showHealth;
   bool animations;
   bool inverted;
   bool bold;

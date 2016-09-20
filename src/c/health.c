@@ -10,6 +10,7 @@ static GFont s_health_font;
 static GFont s_health_bold_font;
 
 extern bool animating;
+extern bool firstframe;
 
 // Create longed-lived buffers
 static char stepsbuffer[] = "10.0k";
@@ -70,10 +71,7 @@ static void update_health_settings()  {
 }
 
 static void health_update_proc(Layer *layer, GContext *ctx) {
-    graphics_context_set_fill_color(ctx, app_config.inverted ? GColorWhite : GColorBlack);
-    graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
-    if (animating || !app_config.showSteps) return;
+    if ((animating && !firstframe) || !app_config.showHealth) return;
 
     update_health_settings(); 
     int steps = get_healt_data(HealthMetricStepCount);
@@ -89,8 +87,8 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     GRect bounds = layer_get_bounds(s_window_layer);
     GRect unobstructed_bounds = layer_get_unobstructed_bounds(s_window_layer);
-    if (!grect_equal(&bounds, &unobstructed_bounds))
-      return; // Don't draw graphs when quickview is enabled
+    if (animating || !grect_equal(&bounds, &unobstructed_bounds))
+      return; // Don't draw graphs when quickview is enabled or animating
 
     int maxstepsangle = PBL_IF_ROUND_ELSE(130, 120);
     int minstepsangle = PBL_IF_ROUND_ELSE(80, 70);

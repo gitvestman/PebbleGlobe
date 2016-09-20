@@ -99,11 +99,6 @@ void destroy_ball(Ball ball) {
 
 void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotation, int longitude_rotation)
 {
-  #ifdef PBL_PLATFORM_APLITE
-  graphics_context_set_fill_color(ctx, app_config.inverted ? GColorWhite : GColorBlack);
-  graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-  #endif
-
   graphics_context_set_stroke_color(ctx, GColorWhite);
   GBitmap *framebuffer = graphics_capture_frame_buffer(ctx);
   GRect bounds = gbitmap_get_bounds(framebuffer);

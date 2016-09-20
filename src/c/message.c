@@ -2,17 +2,19 @@
 #include "message.h"
 #include "clock.h"
 
+Window* window_ref;
 Layer* root_layer;
 int currentlong;
 int currentlat;
 int16_t timezone_offset;
-Config app_config = { .showDate = true, .showSteps = false, .animations = true, .inverted = false, .bold = false };
+Config app_config = { .showDate = true, .showHealth = false, .animations = true, .inverted = false, .bold = false };
 #define SETTINGS_KEY 1
 
 // Read settings from persistent storage
 static void prv_load_settings() {
   // Read settings from persistent storage, if they exist
   persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
+  window_set_background_color(window_ref, app_config.inverted ? GColorWhite : GColorBlack);
   update_time();
   layer_mark_dirty(root_layer);
 }
@@ -20,6 +22,7 @@ static void prv_load_settings() {
 // Save the settings to persistent storage
 static void prv_save_settings() {
   persist_write_data(SETTINGS_KEY, &app_config, sizeof(app_config));
+  window_set_background_color(window_ref, app_config.inverted ? GColorWhite : GColorBlack);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -57,10 +60,10 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     app_config.showDate = showDate_t->value->int32 == 1;
   }
 
-  // ShowSteps
-  Tuple *showSteps_t = dict_find(iterator, MESSAGE_KEY_ShowHealth);
-  if (showSteps_t) {
-    app_config.showSteps = showSteps_t->value->int32 == 1;
+  // showHealth
+  Tuple *showHealth_t = dict_find(iterator, MESSAGE_KEY_ShowHealth);
+  if (showHealth_t) {
+    app_config.showHealth = showHealth_t->value->int32 == 1;
   }
 
   // Animation
@@ -88,6 +91,7 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 }
 
 void message_init(Window *window) {
+  window_ref = window;
   root_layer = window_get_root_layer(window);
   prv_load_settings();
   // Register callbacks
