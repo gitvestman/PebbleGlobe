@@ -1,5 +1,6 @@
 #include <pebble.h>
 #include "ball.h"
+#include "message.h"
 
 #define FIXED_360_DEG 0x10000
 #define FIXED_360_DEG_SHIFT 16
@@ -23,7 +24,7 @@ struct ball {
 };
 
 #define DRAW_BW_PIXEL( framebuffer, x, yoffset, color ) \
-      (color != 0 ? (framebufferdata[yoffset + ((x) >> 3)] |= ((color) << ((x) & 0x07))) : \
+      ((color) != 0 ? (framebufferdata[yoffset + ((x) >> 3)] |= ((1) << ((x) & 0x07))) : \
                     (framebufferdata[yoffset + ((x) >> 3)] &= ~((1) << ((x) & 0x07))));
 
 #define DRAW_COLOR_PIXEL( framebuffer, x, yoffset, color ) \
@@ -65,7 +66,7 @@ static void init_arccos(Ball ball) {
 
 Ball create_ball(GBitmap *bitmap, int radius, int x, int y) {
   Ball ball = malloc(sizeof(struct ball));
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Ball allocated %d bytes", sizeof(struct ball));
+  APP_LOG(APP_LOG_LEVEL_INFO, "Ball allocated %d bytes, position(%d, %d)", (int)sizeof(struct ball), x, y);
   ball->bitmap_data = gbitmap_get_data(bitmap);
   ball->bitmapwidth = gbitmap_get_bytes_per_row(bitmap);
   ball->bitmapbounds = gbitmap_get_bounds(bitmap);
@@ -81,6 +82,14 @@ Ball create_ball(GBitmap *bitmap, int radius, int x, int y) {
   ball->palette = gbitmap_get_palette(bitmap);
 #endif
   return ball;
+}
+
+void update_ball(Ball ball, int radius, int x, int y) {
+  ball->bitmapsize = ball->bitmapwidth * ball->bitmapbounds.size.h;
+  ball->radius = radius;
+  ball->radiusx2 = radius * radius;
+  ball->centerx = x;
+  ball->centery = y;
 }
 
 void destroy_ball(Ball ball) {
@@ -184,7 +193,7 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
         byteposition = lineposition + (rowposition >> 3);
         if (byteposition < ball->bitmapsize) {
           uint8_t byte = ball->bitmap_data[byteposition];
-          pixel = (byte >> (rowposition & 0x07)) & 1;
+          pixel = (byte >> (7 - (rowposition & 0x07))) & 1;
         }
 #endif
 
@@ -192,11 +201,11 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 #ifdef PBL_ROUND
         /*if (x == ball->centerx)
           APP_LOG(APP_LOG_LEVEL_INFO, "Round Draw position(%d, %d)", x, y);*/
-          DRAW_ROUND_PIXEL(info.data, x, pixel);
+        DRAW_ROUND_PIXEL(info.data, x, /* app_config.inverted ? pixel ^ 0x7F :*/ pixel);
 #elif PBL_COLOR
-          DRAW_COLOR_PIXEL(framebuffer, x, yoffset, pixel);
+        DRAW_COLOR_PIXEL(framebuffer, x, yoffset, /* app_config.inverted ? pixel ^ 0x7F :*/ pixel);
 #else
-          DRAW_BW_PIXEL(framebuffer, x, yoffset, pixel);
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, app_config.inverted ? pixel ^ 0x01 : pixel);
 #endif
         }
       }

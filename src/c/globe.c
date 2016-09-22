@@ -6,14 +6,16 @@
 static GBitmap *s_body_bitmap;
 static GBitmap *s_head_bitmap;
 static Layer *s_simple_bg_layer;
+static Layer *window_layer;
 
 static Ball body;
 static Ball head;
 
-static int8_t globeradius = 48;
+static int8_t maxgloberadius = 48;
+static int16_t globeradius = 48;
 static uint_fast8_t globecenterx, globecentery;
 
-static int8_t headradius = 28;
+static int16_t headradius = 28;
 static uint_fast8_t headcenterx, headcentery;
 
 static uint16_t globelong = 15000;
@@ -27,8 +29,9 @@ static int xres = 0;
 static int yres = 0;
 static int sunlong = 0xA000;
 static int animation_direction = 1;
-static bool animating = true;
 static int animation_count;
+bool animating = true;
+bool firstframe = true;
 
 #define FIXED_360_DEG_SHIFT 16
 #define FIXED_360_DEG 0x10000
@@ -36,9 +39,6 @@ static int animation_count;
 
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
-  graphics_context_set_fill_color(ctx, GColorBlack);
-  graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
-
   if (!animating) {
     globelat -= 128 * animation_direction;
     globelong += 64 * animation_direction;
@@ -50,7 +50,6 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
   ball_update_proc(body, layer, ctx, globelat, globelong, 0, 0);
   ball_update_proc(head, layer, ctx, headlat, headlong, 0, headbump);
 }
-
 
 static int longitude_start = 0;
 static int longitude_length = 0;
@@ -68,6 +67,7 @@ static void anim_started_handler(Animation* anim, void* context) {
   latitude_length = abs(sunlong - globelong) + FIXED_360_DEG;
   headlong_start = headlong;
   animating = true;
+  firstframe = true;
   animation_count = 0;
   tick_timer_service_unsubscribe();
 }
@@ -85,6 +85,7 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   headlong = headlong_start + animation_direction * sin_lookup(progress * 3) / 8;
   headbump = abs(3 * cos_lookup(progress * 8) >> FIXED_360_DEG_SHIFT);
   layer_mark_dirty(s_simple_bg_layer);
+  if (animation_count > 1) firstframe = false;
   animation_count++;
 }
 
@@ -109,8 +110,8 @@ void spin_globe(int delay, int direction) {
 void init_globe(Window *window) {
   init_sqrt();
 
-  Layer *window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_bounds(window_layer);
+  window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_unobstructed_bounds(window_layer);
   globecenterx = headcenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2 + 20;
   headcentery = globecentery - globeradius + 0;
@@ -140,6 +141,28 @@ void init_globe(Window *window) {
   layer_set_update_proc(s_simple_bg_layer, bg_update_proc);
   layer_add_child(window_get_root_layer(window), s_simple_bg_layer);
   spin_globe(ANIMATION_INITIAL_DELAY, 1);
+}
+
+void update_globe() {
+  GRect bounds = layer_get_unobstructed_bounds(window_layer);
+  layer_set_bounds(s_simple_bg_layer, bounds);
+  globeradius = bounds.size.h * 2 / 7;
+  APP_LOG(APP_LOG_LEVEL_INFO, "globeradius: %d", globeradius);
+  if (globeradius > maxgloberadius) globeradius = maxgloberadius;
+  globecenterx = headcenterx = bounds.size.w / 2;
+  globecentery = bounds.size.h / 2 + 20;
+  headradius = bounds.size.h / 6;
+  APP_LOG(APP_LOG_LEVEL_INFO, "headradius: %d", headradius);
+  #ifdef PBL_RECT
+  //if (globecentery > 60) globecentery += 10;
+  #endif
+  headcentery = globecentery - globeradius + 0;
+  xres = bounds.size.w;
+  yres = bounds.size.h;
+
+  update_ball(body, globeradius, globecenterx, globecentery);
+  update_ball(head, headradius, headcenterx, headcentery);
+  layer_mark_dirty(s_simple_bg_layer);
 }
 
 void destroy_globe() {
