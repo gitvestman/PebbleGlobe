@@ -18,7 +18,7 @@ module.exports = [
         "type": "toggle",
         "messageKey": "Inverted",
         "defaultValue": false,
-        "label": "Inverted Colors"
+        "label": "White Background"
       }
     ]
   },

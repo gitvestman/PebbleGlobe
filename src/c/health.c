@@ -79,6 +79,11 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int stepsavg = get_healt_average(HealthMetricStepCount);
     int sleepavg = get_healt_average(HealthMetricSleepSeconds);
 
+    //steps = 6000;
+    //stepsavg = 4000;
+    //sleep = 4000;
+    //sleepavg = 4000;
+
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
 
@@ -90,8 +95,8 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     if (animating || !grect_equal(&bounds, &unobstructed_bounds))
       return; // Don't draw graphs when quickview is enabled or animating
 
-    int maxstepsangle = PBL_IF_ROUND_ELSE(130, 120);
-    int minstepsangle = PBL_IF_ROUND_ELSE(80, 70);
+    int maxstepsangle = PBL_IF_ROUND_ELSE(140, 120);
+    int minstepsangle = PBL_IF_ROUND_ELSE(90, 70);
 
     #ifdef PBL_ROUND
     GRect frame = grect_inset(bounds, GEdgeInsets(15, 15, 15, 15));
@@ -100,19 +105,45 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     #endif
 
     if (steps > 0 && stepsavg > 0) {
+        #ifdef PBL_ROUND
         int y = ((maxstepsangle - minstepsangle) * 3 / 4) * steps / stepsavg;
         if (y > (maxstepsangle - minstepsangle)) y = (maxstepsangle - minstepsangle);
-
-        graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorRoseVale, app_config.inverted ? GColorBlack : GColorWhite));
-        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 6, DEG_TO_TRIGANGLE(maxstepsangle - y), DEG_TO_TRIGANGLE(maxstepsangle));        
+        graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorMelon, app_config.inverted ? GColorBlack : GColorWhite));
+        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 6, DEG_TO_TRIGANGLE(maxstepsangle - y), DEG_TO_TRIGANGLE(maxstepsangle));
+        #else
+        int y = (70 * 3 / 4) * steps / stepsavg;
+        if (y > 70) y = 70;
+        GRect rect_bounds = GRect(bounds.size.w - 12, 135 - y, 8, y);
+        APP_LOG(APP_LOG_LEVEL_INFO, "y: %d", y);
+        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorMelon: GColorRed, app_config.inverted ? GColorBlack : GColorWhite);
+        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorRed : GColorMelon, app_config.inverted ? GColorWhite : GColorBlack);
+        graphics_context_set_stroke_color(ctx, strokecolor);
+        graphics_context_set_fill_color(ctx, fillcolor);
+        graphics_context_set_stroke_width(ctx, 2);
+        graphics_fill_rect(ctx, rect_bounds, 2, GCornersAll);      
+        graphics_draw_round_rect(ctx, rect_bounds, GCornersAll);      
+        #endif
     }
 
     if (sleep > 0 && sleepavg > 0) {
+        #ifdef PBL_ROUND
         int y = ((maxstepsangle - minstepsangle) * 3 / 4) * sleep / sleepavg;
         if (y > (maxstepsangle - minstepsangle)) y = (maxstepsangle - minstepsangle);
-
         graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorCadetBlue, app_config.inverted ? GColorBlack : GColorWhite));
-        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 6, DEG_TO_TRIGANGLE(- maxstepsangle), DEG_TO_TRIGANGLE( - (maxstepsangle - y)));        
+        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 6, DEG_TO_TRIGANGLE(- maxstepsangle), DEG_TO_TRIGANGLE( - (maxstepsangle - y)));
+        #else
+        int y = (70 * 4 / 5) * sleep / sleepavg;
+        if (y > 70) y = 70;
+        GRect rect_bounds = GRect(5, 135 - y, 8, y);
+        APP_LOG(APP_LOG_LEVEL_INFO, "y: %d", y);
+        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorBabyBlueEyes: GColorBlue, app_config.inverted ? GColorBlack : GColorWhite);
+        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorBlue : GColorBabyBlueEyes, app_config.inverted ? GColorWhite : GColorBlack);
+        graphics_context_set_stroke_color(ctx, strokecolor);
+        graphics_context_set_fill_color(ctx, fillcolor);
+        graphics_context_set_stroke_width(ctx, 2);
+        graphics_fill_rect(ctx, rect_bounds, 2, GCornersAll);      
+        graphics_draw_round_rect(ctx, rect_bounds, GCornersAll);      
+        #endif        
     }
 }
 
@@ -123,7 +154,7 @@ void init_health(Window *window) {
   GRect bounds = layer_get_bounds(s_window_layer);
   int stepsx = bounds.size.w - PBL_IF_ROUND_ELSE(41, 31);
   int sleepx = PBL_IF_ROUND_ELSE(11, 1);
-  int stepsy = bounds.size.h/2 - bounds.size.h/4 + PBL_IF_ROUND_ELSE(5, 0);
+  int stepsy = bounds.size.h/2 - bounds.size.h/4 + PBL_IF_ROUND_ELSE(20, 0);
   int sleepy = stepsy;
 
   // Create steps textlayer

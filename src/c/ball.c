@@ -205,7 +205,7 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 #elif PBL_COLOR
         DRAW_COLOR_PIXEL(framebuffer, x, yoffset, /* app_config.inverted ? pixel ^ 0x7F :*/ pixel);
 #else
-        DRAW_BW_PIXEL(framebuffer, x, yoffset, app_config.inverted ? pixel ^ 0x01 : pixel);
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, /* app_config.inverted ? pixel ^ 0x01 :*/ pixel);
 #endif
         }
       }

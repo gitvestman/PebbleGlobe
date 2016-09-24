@@ -127,7 +127,7 @@ void init_time(Window *window) {
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
   s_date_bold_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 
-  text_layer_set_text_alignment(s_time_second_layer, GTextAlignmentLeft);
+  text_layer_set_text_alignment(s_time_second_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_second_layer));
 
   text_layer_set_text_alignment(s_time_layer, GTextAlignmentLeft);
