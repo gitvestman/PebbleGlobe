@@ -2,11 +2,13 @@
 #include "clock.h"
 #include "globe.h"
 #include "ball.h"
+#include "message.h"
 
 static GBitmap *s_body_bitmap;
 static GBitmap *s_head_bitmap;
 static Layer *s_simple_bg_layer;
 static Layer *window_layer;
+static Window *window_ref;
 
 static Ball body;
 static Ball head;
@@ -75,6 +77,8 @@ static void anim_started_handler(Animation* anim, void* context) {
 static void anim_stopped_handler(Animation* anim, bool finished, void* context) {
   animation_destroy(anim);
   animating = false;
+  GColor background = app_config.inverted ? GColorWhite : GColorBlack;
+  window_set_background_color(window_ref, background);
   reset_ticks();
   //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
@@ -85,7 +89,10 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   headlong = headlong_start + animation_direction * sin_lookup(progress * 3) / 8;
   headbump = abs(3 * cos_lookup(progress * 8) >> FIXED_360_DEG_SHIFT);
   layer_mark_dirty(s_simple_bg_layer);
-  if (animation_count > 1) firstframe = false;
+  if (animation_count == 1) {
+    firstframe = false;
+  }
+  window_set_background_color(window_ref, GColorClear);
   animation_count++;
 }
 
@@ -110,6 +117,7 @@ void spin_globe(int delay, int direction) {
 void init_globe(Window *window) {
   init_sqrt();
 
+  window_ref = window;
   window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   globecenterx = headcenterx = bounds.size.w / 2;
@@ -120,21 +128,11 @@ void init_globe(Window *window) {
 
   // Body
   s_body_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GLOBE);
-  //int bytes = gbitmap_get_bytes_per_row(s_body_bitmap);
-  //GRect bodysize = gbitmap_get_bounds(s_body_bitmap);
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Globe Bytes per row: %d (%d, %d)", bytes, bodysize.size.w, bodysize.size.h);
-  //GBitmapFormat format = gbitmap_get_format(s_body_bitmap);
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Globe Bitmap format: %d", (int)format);
   body = create_ball(s_body_bitmap, globeradius, globecenterx, globecentery);
   //APP_LOG(APP_LOG_LEVEL_INFO, "Body created: %p", body);
 
   // Head
   s_head_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_HEAD);
-  //bytes = gbitmap_get_bytes_per_row(s_head_bitmap);
-  //GRect headsize = gbitmap_get_bounds(s_head_bitmap);
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Head Bytes per row: %d (%d, %d)", bytes, headsize.size.w, headsize.size.h);
-  //format = gbitmap_get_format(s_head_bitmap);
-  //APP_LOG(APP_LOG_LEVEL_INFO, "Head Bitmap format: %d", (int)format);
   head = create_ball(s_head_bitmap, headradius, headcenterx, headcentery);
 
   s_simple_bg_layer = layer_create(bounds);

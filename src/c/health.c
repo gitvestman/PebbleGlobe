@@ -55,25 +55,32 @@ static int get_healt_average(HealthMetric metric) {
 }
 
 static void update_health_settings()  {
-  // Set fonts
-  text_layer_set_font(s_steps_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
-  text_layer_set_font(s_sleep_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
+    if (!app_config.showHealth) {
+        layer_set_hidden((Layer *)s_steps_text_layer, true);
+        layer_set_hidden((Layer *)s_sleep_text_layer, true);
+    } else {
+        layer_set_hidden((Layer *)s_steps_text_layer, false);
+        layer_set_hidden((Layer *)s_sleep_text_layer, false);
 
-  // Set text colors
-  GColor background = GColorClear;
-  GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
+        // Set fonts
+        text_layer_set_font(s_steps_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
+        text_layer_set_font(s_sleep_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
 
-  text_layer_set_background_color(s_steps_text_layer, background);
-  text_layer_set_text_color(s_steps_text_layer, textcolor);
+        // Set text colors
+        GColor background = GColorClear;
+        GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
 
-  text_layer_set_background_color(s_sleep_text_layer, background);
-  text_layer_set_text_color(s_sleep_text_layer, textcolor);
+        text_layer_set_background_color(s_steps_text_layer, background);
+        text_layer_set_text_color(s_steps_text_layer, textcolor);
+
+        text_layer_set_background_color(s_sleep_text_layer, background);
+        text_layer_set_text_color(s_sleep_text_layer, textcolor);
+    }
 }
 
 static void health_update_proc(Layer *layer, GContext *ctx) {
-    if ((animating && !firstframe) || !app_config.showHealth) return;
-
     update_health_settings(); 
+    if ((animating && !firstframe) || !app_config.showHealth) return;
     int steps = get_healt_data(HealthMetricStepCount);
     int sleep = get_healt_data(HealthMetricSleepSeconds);
     int stepsavg = get_healt_average(HealthMetricStepCount);
@@ -81,8 +88,8 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     //steps = 6000;
     //stepsavg = 4000;
-    //sleep = 4000;
-    //sleepavg = 4000;
+    //sleep = 24000;
+    //sleepavg = 24000;
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
@@ -92,7 +99,7 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     GRect bounds = layer_get_bounds(s_window_layer);
     GRect unobstructed_bounds = layer_get_unobstructed_bounds(s_window_layer);
-    if (animating || !grect_equal(&bounds, &unobstructed_bounds))
+    if ((animating && !firstframe) || !grect_equal(&bounds, &unobstructed_bounds))
       return; // Don't draw graphs when quickview is enabled or animating
 
     int maxstepsangle = PBL_IF_ROUND_ELSE(140, 120);
@@ -100,23 +107,26 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     #ifdef PBL_ROUND
     GRect frame = grect_inset(bounds, GEdgeInsets(15, 15, 15, 15));
+    GRect frame2 = grect_inset(bounds, GEdgeInsets(13, 13, 13, 13));
     #else
     GRect frame = grect_inset(bounds, GEdgeInsets(21, 1, 1, 1));
     #endif
 
     if (steps > 0 && stepsavg > 0) {
+        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorMelon: GColorRed, app_config.inverted ? GColorBlack : GColorWhite);
+        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorRed : GColorMelon, app_config.inverted ? GColorWhite : GColorBlack);
         #ifdef PBL_ROUND
         int y = ((maxstepsangle - minstepsangle) * 3 / 4) * steps / stepsavg;
         if (y > (maxstepsangle - minstepsangle)) y = (maxstepsangle - minstepsangle);
-        graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorMelon, app_config.inverted ? GColorBlack : GColorWhite));
-        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 6, DEG_TO_TRIGANGLE(maxstepsangle - y), DEG_TO_TRIGANGLE(maxstepsangle));
+        graphics_context_set_fill_color(ctx, strokecolor);
+        graphics_fill_radial(ctx, frame2, GOvalScaleModeFitCircle, 8, DEG_TO_TRIGANGLE(maxstepsangle - y), DEG_TO_TRIGANGLE(maxstepsangle));
+        graphics_context_set_fill_color(ctx, fillcolor);
+        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 4, DEG_TO_TRIGANGLE(maxstepsangle - y), DEG_TO_TRIGANGLE(maxstepsangle));
         #else
         int y = (70 * 3 / 4) * steps / stepsavg;
         if (y > 70) y = 70;
         GRect rect_bounds = GRect(bounds.size.w - 12, 135 - y, 8, y);
         APP_LOG(APP_LOG_LEVEL_INFO, "y: %d", y);
-        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorMelon: GColorRed, app_config.inverted ? GColorBlack : GColorWhite);
-        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorRed : GColorMelon, app_config.inverted ? GColorWhite : GColorBlack);
         graphics_context_set_stroke_color(ctx, strokecolor);
         graphics_context_set_fill_color(ctx, fillcolor);
         graphics_context_set_stroke_width(ctx, 2);
@@ -126,18 +136,20 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     }
 
     if (sleep > 0 && sleepavg > 0) {
+        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorBabyBlueEyes: GColorBlue, app_config.inverted ? GColorBlack : GColorWhite);
+        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorBlue : GColorBabyBlueEyes, app_config.inverted ? GColorWhite : GColorBlack);
         #ifdef PBL_ROUND
         int y = ((maxstepsangle - minstepsangle) * 3 / 4) * sleep / sleepavg;
         if (y > (maxstepsangle - minstepsangle)) y = (maxstepsangle - minstepsangle);
-        graphics_context_set_fill_color(ctx, COLOR_FALLBACK(GColorCadetBlue, app_config.inverted ? GColorBlack : GColorWhite));
-        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 6, DEG_TO_TRIGANGLE(- maxstepsangle), DEG_TO_TRIGANGLE( - (maxstepsangle - y)));
+        graphics_context_set_fill_color(ctx, strokecolor);
+        graphics_fill_radial(ctx, frame2, GOvalScaleModeFitCircle, 8, DEG_TO_TRIGANGLE(- maxstepsangle), DEG_TO_TRIGANGLE( - (maxstepsangle - y)));
+        graphics_context_set_fill_color(ctx, fillcolor);
+        graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 4, DEG_TO_TRIGANGLE(- maxstepsangle), DEG_TO_TRIGANGLE( - (maxstepsangle - y)));
         #else
         int y = (70 * 4 / 5) * sleep / sleepavg;
         if (y > 70) y = 70;
         GRect rect_bounds = GRect(5, 135 - y, 8, y);
         APP_LOG(APP_LOG_LEVEL_INFO, "y: %d", y);
-        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorBabyBlueEyes: GColorBlue, app_config.inverted ? GColorBlack : GColorWhite);
-        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorBlue : GColorBabyBlueEyes, app_config.inverted ? GColorWhite : GColorBlack);
         graphics_context_set_stroke_color(ctx, strokecolor);
         graphics_context_set_fill_color(ctx, fillcolor);
         graphics_context_set_stroke_width(ctx, 2);

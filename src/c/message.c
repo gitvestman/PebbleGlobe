@@ -7,14 +7,16 @@ Layer* root_layer;
 int currentlong;
 int currentlat;
 int16_t timezone_offset;
-Config app_config = { .showDate = true, .showHealth = false, .animations = true, .inverted = false, .bold = false };
+GColor background;
+Config app_config = { .showDate = true, .showHealth = true, .animations = true, .inverted = false, .bold = false };
 #define SETTINGS_KEY 1
 
 // Read settings from persistent storage
 static void prv_load_settings() {
   // Read settings from persistent storage, if they exist
   persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
-  window_set_background_color(window_ref, app_config.inverted ? GColorWhite : GColorBlack);
+  background = app_config.inverted ? GColorWhite : GColorBlack;
+  window_set_background_color(window_ref, background);
   update_time();
   layer_mark_dirty(root_layer);
 }
@@ -22,7 +24,8 @@ static void prv_load_settings() {
 // Save the settings to persistent storage
 static void prv_save_settings() {
   persist_write_data(SETTINGS_KEY, &app_config, sizeof(app_config));
-  window_set_background_color(window_ref, app_config.inverted ? GColorWhite : GColorBlack);
+  background = app_config.inverted ? GColorWhite : GColorBlack;
+  window_set_background_color(window_ref, background);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {

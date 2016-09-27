@@ -28,6 +28,9 @@ static int datenx = -120;
 static int dateny = -38;
 #endif
 
+extern bool animating;
+extern bool firstframe;
+
 // Change to minute ticking after a while to save battery
 #define MAX_SECOND_TICKS 20
 
@@ -149,6 +152,7 @@ void init_time(Window *window) {
 }
 
 void update_time() {
+  if (animating && !firstframe) return;
   set_colors();
   set_fonts();
   // Get a tm structure
