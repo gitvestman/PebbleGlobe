@@ -24,9 +24,18 @@ static void tap_handler(AccelAxisType axis, int32_t direction) {
     spin_globe(0, direction);
 }
 
+static void main_unobstructed_did_change(void *context) {
+    clock_unobstructed_did_change(context);
+    #ifdef PBL_HEALTH
+    health_unobstructed_did_change(context);
+    #endif
+}
+
 static void main_window_load(Window *window) {
   init_globe(main_window);
+  #ifdef PBL_HEALTH
   init_health(main_window);
+  #endif
   init_time(main_window);
   init_battery(main_window);
   update_time();
@@ -34,7 +43,9 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   destroy_globe();
+  #ifdef PBL_HEALTH
   destroy_health();
+  #endif
   destroy_time();
   destroy_battery();
 }
@@ -52,12 +63,19 @@ void handle_init(void) {
   // Subscribe to taps
   accel_tap_service_subscribe(tap_handler);
 
+  // Subscribe to Quick View events
+  UnobstructedAreaHandlers handlers = {
+    .did_change = main_unobstructed_did_change
+  };
+  unobstructed_area_service_subscribe(handlers, NULL);
+
   // Register callbacks
   message_init(main_window);
 }
 
 void handle_deinit(void) {
   accel_tap_service_unsubscribe();
+  unobstructed_area_service_unsubscribe();
   message_deinit();
   window_destroy(main_window);
 }
