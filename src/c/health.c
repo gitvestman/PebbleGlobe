@@ -36,8 +36,7 @@ void health_unobstructed_did_change(void *context) {
 
 static int get_health_data(HealthMetric metric) {
     int result = 0;
-    #if defined(PBL_HEALTH)
-    const time_t start = time_start_of_today() - metric == HealthMetricSleepSeconds ? 6 : 0; 
+    const time_t start = time_start_of_today(); 
     const time_t end = time(NULL);
 
     // Check the metric has data available for today
@@ -47,13 +46,11 @@ static int get_health_data(HealthMetric metric) {
         // Data is available!
         result = (int)health_service_sum_today(metric);
     }
-    #endif
     return result;
 }
 
-static int get_health_average(HealthMetric metric, bool daily) {
-    int result = 0;
-    #if defined(PBL_HEALTH)
+static HealthValue get_health_average(HealthMetric metric, bool daily) {
+    HealthValue result = 0;
     // Define query parameters
     const HealthServiceTimeScope scope = HealthServiceTimeScopeWeekly;
 
@@ -62,6 +59,7 @@ static int get_health_average(HealthMetric metric, bool daily) {
     const time_t end = time(NULL);
     if (!daily) {
         start = end - 10; // Last 10 seconds
+        APP_LOG(APP_LOG_LEVEL_INFO, "get_health_average: daily %d - %d", (int)start, (int)end);        
     }
 
     // Check that an averaged value is accessible
@@ -69,9 +67,8 @@ static int get_health_average(HealthMetric metric, bool daily) {
           health_service_metric_averaged_accessible(metric, start, end, scope);
     if(mask & HealthServiceAccessibilityMaskAvailable) {
         // Average is available, read it
-        result = (int)health_service_sum_averaged(metric, start, end, scope);
+        result = health_service_sum_averaged(metric, start, end, scope);
     }
-    #endif
     return result;
 }
 
@@ -98,9 +95,8 @@ static void update_health_settings()  {
 }
 
 static void health_update_proc(Layer *layer, GContext *ctx) {
-    if ((animating && !firstframe) || !app_config.showHealth) return;
-
     update_health_settings(); 
+    if ((animating && !firstframe) || !app_config.showHealth) return;
     int steps = get_health_data(HealthMetricStepCount);
     int sleep = get_health_data(HealthMetricSleepSeconds);
     int stepsavg = get_health_average(HealthMetricStepCount, true);
@@ -111,6 +107,13 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
+    //steps = 6000;
+    //stepsavg = 4000;
+    //sleep = 24000;
+    //sleepavg = 24000;
+
+    APP_LOG(APP_LOG_LEVEL_INFO, "get_health_average: sleep %d, sleepavg %d", sleep, sleepavg);        
+
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
 
@@ -119,7 +122,7 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     GRect bounds = layer_get_bounds(s_window_layer);
     GRect unobstructed_bounds = layer_get_unobstructed_bounds(s_window_layer);
-    if (animating || !grect_equal(&bounds, &unobstructed_bounds))
+    if ((animating && !firstframe) || !grect_equal(&bounds, &unobstructed_bounds))
       return; // Don't draw graphs when quickview is enabled or animating
 
     int maxstepsangle = PBL_IF_ROUND_ELSE(130, 120);

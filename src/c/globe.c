@@ -10,6 +10,7 @@
 static GBitmap *s_globe_bitmap;
 static Layer *s_simple_bg_layer;
 static Layer *window_layer;
+static Window *window_ref;
 
 static Ball globe;
 
@@ -81,6 +82,8 @@ static void update_animation_parameters() {
 static void anim_stopped_handler(Animation* anim, bool finished, void* context) {
   animation_destroy(anim);
   animating = false;
+  GColor background = app_config.inverted ? GColorWhite : GColorBlack;
+  window_set_background_color(window_ref, background);
   reset_ticks();
   //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
@@ -89,7 +92,10 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   globelong = longitude_start + animation_direction * longitude_length * progress / ANIMATION_NORMALIZED_MAX;
   globelat = latitude_start + latitude_length * progress / ANIMATION_NORMALIZED_MAX;
   layer_mark_dirty(s_simple_bg_layer);
-  if (animation_count > 1) firstframe = false;
+  if (animation_count == 1) {
+    firstframe = false;
+  }
+  window_set_background_color(window_ref, GColorClear);
   animation_count++;
 }
 
@@ -114,6 +120,7 @@ void spin_globe(int delay, int direction) {
 void init_globe(Window *window) {
   init_sqrt();
 
+  window_ref = window;
   window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   globecenterx = bounds.size.w / 2;
