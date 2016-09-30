@@ -59,7 +59,6 @@ static HealthValue get_health_average(HealthMetric metric, bool daily) {
     const time_t end = time(NULL);
     if (!daily) {
         start = end - 10; // Last 10 seconds
-        APP_LOG(APP_LOG_LEVEL_INFO, "get_health_average: daily %d - %d", (int)start, (int)end);        
     }
 
     // Check that an averaged value is accessible
@@ -111,8 +110,6 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     //stepsavg = 4000;
     //sleep = 24000;
     //sleepavg = 24000;
-
-    APP_LOG(APP_LOG_LEVEL_INFO, "get_health_average: sleep %d, sleepavg %d", sleep, sleepavg);        
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
