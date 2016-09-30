@@ -25,7 +25,7 @@ static int timex = 0;
 static int timex2 = 80;
 static int timey = 2;
 static int datenx = -120;
-static int dateny = -38;
+static int dateny = -30;
 #endif
 
 extern bool animating;
@@ -47,17 +47,17 @@ void reset_ticks() {
   tick_timer_service_subscribe(SECOND_UNIT, tick_handler);
 }
 
-static void prv_unobstructed_did_change(void *context) {
+void clock_unobstructed_did_change(void *context) {
   // Get the total available screen real-estate
   GRect bounds = layer_get_unobstructed_bounds(s_window_layer);
   int datex = bounds.size.w + datenx;
   int datey = bounds.size.h + dateny;
 
   // Move date textlayer
-  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,118,45));
+  layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,118,30));
 
   // Move date shadow textlayer
-  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,118,45));
+  layer_set_frame((Layer *)s_date_shadow_layer, GRect(datex - 2, datey + 2,118,30));
   update_globe();
   if (app_config.animations)
     spin_globe(0, 1);
@@ -96,12 +96,7 @@ void init_time(Window *window) {
   //Register with TickTimerService
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
-  UnobstructedAreaHandlers handlers = {
-    .did_change = prv_unobstructed_did_change
-  };
-  unobstructed_area_service_subscribe(handlers, NULL);
-
-  GRect bounds = layer_get_bounds(s_window_layer);
+  GRect bounds = layer_get_unobstructed_bounds(s_window_layer);
   int datex = bounds.size.w + datenx;
   int datey = bounds.size.h + dateny;
 

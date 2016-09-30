@@ -145,12 +145,12 @@ void update_globe() {
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   layer_set_bounds(s_simple_bg_layer, bounds);
   globeradius = bounds.size.h * 2 / 7;
-  APP_LOG(APP_LOG_LEVEL_INFO, "globeradius: %d", globeradius);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "globeradius: %d", globeradius);
   if (globeradius > maxgloberadius) globeradius = maxgloberadius;
   globecenterx = headcenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2 + 20;
   headradius = bounds.size.h / 6;
-  APP_LOG(APP_LOG_LEVEL_INFO, "headradius: %d", headradius);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "headradius: %d", headradius);
   #ifdef PBL_RECT
   //if (globecentery > 60) globecentery += 10;
   #endif
