@@ -114,14 +114,9 @@ void init_time(Window *window) {
   s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,118,45));
 
   // Create Fonts
-  //s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_LIGHT);
-#ifdef PBL_COLOR
   s_time_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
   s_time_bold_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-#else
-  s_time_font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
-  s_time_bold_font = fonts_get_system_font(FONT_KEY_BITHAM_42_BOLD);
-#endif
+
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
   s_date_bold_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
 
