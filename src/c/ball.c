@@ -16,6 +16,7 @@ struct ball {
   int bitmapsize;
   int8_t radius;
   uint_fast16_t radiusx2;
+  uint_fast16_t outerradiusx2;
   uint_fast8_t centerx, centery;
   int32_t *arccos;
 #ifdef PBL_COLOR
@@ -74,6 +75,7 @@ Ball create_ball(GBitmap *bitmap, int radius, int x, int y) {
   ball->bitmapsize = ball->bitmapwidth * ball->bitmapbounds.size.h;
   ball->radius = radius;
   ball->radiusx2 = radius * radius;
+  ball->outerradiusx2 = (radius + 1) * (radius + 1);
   ball->centerx = x;
   ball->centery = y;
   ball->arccos = malloc(sizeof(int32_t) * 81);
@@ -90,6 +92,7 @@ void update_ball(Ball ball, int radius, int x, int y) {
   ball->radiusx2 = radius * radius;
   ball->centerx = x;
   ball->centery = y;
+  init_arccos(ball);
 }
 
 void destroy_ball(Ball ball) {
@@ -199,8 +202,6 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
 
         if (byteposition < ball->bitmapsize) {
 #ifdef PBL_ROUND
-        /*if (x == ball->centerx)
-          APP_LOG(APP_LOG_LEVEL_INFO, "Round Draw position(%d, %d)", x, y);*/
         DRAW_ROUND_PIXEL(info.data, x, /* app_config.inverted ? pixel ^ 0x7F :*/ pixel);
 #elif PBL_COLOR
         DRAW_COLOR_PIXEL(framebuffer, x, yoffset, /* app_config.inverted ? pixel ^ 0x7F :*/ pixel);
@@ -208,6 +209,14 @@ void ball_update_proc(Ball ball, Layer *layer, GContext *ctx, int latitude_rotat
         DRAW_BW_PIXEL(framebuffer, x, yoffset, /* app_config.inverted ? pixel ^ 0x01 :*/ pixel);
 #endif
         }
+      } else if (radiusx2 < ball->outerradiusx2 && y < centery) {
+#ifdef PBL_ROUND
+        DRAW_ROUND_PIXEL(info.data, x, app_config.inverted ? GColorWhiteARGB8 : GColorBlackARGB8);
+#elif PBL_COLOR
+        DRAW_COLOR_PIXEL(framebuffer, x, yoffset, app_config.inverted ? GColorWhiteARGB8 : GColorBlackARGB8);
+#else
+        DRAW_BW_PIXEL(framebuffer, x, yoffset, app_config.inverted ? 1 : 0);
+#endif
       }
     }
   }
