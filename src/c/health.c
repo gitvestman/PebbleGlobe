@@ -110,9 +110,9 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int stepsavg = get_health_average(HealthMetricStepCount, true);
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
     #ifdef PBL_PLATFORM_DIORITE    
-    int pulseavg = get_health_average(HealthMetricHeartRateBPM, false);
-    //pulseavg = 100;
-    snprintf(pulsebuffer, sizeof(pulsebuffer), "%d❤️", pulseavg);
+    uint32_t pulse = health_service_peek_current_value(HealthMetricHeartRateBPM);
+    //pulse = 100;
+    snprintf(pulsebuffer, sizeof(pulsebuffer), "%ld❤️", pulse);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
