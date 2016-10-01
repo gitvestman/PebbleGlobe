@@ -102,14 +102,16 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
     #ifdef PBL_PLATFORM_DIORITE    
     int pulseavg = get_health_average(HealthMetricHeartRateBPM, false);
+    pulseavg = 100;
     snprintf(pulsebuffer, sizeof(pulsebuffer), "%d❤️", pulseavg);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
-    //steps = 6000;
-    //stepsavg = 4000;
-    //sleep = 24000;
-    //sleepavg = 24000;
+    steps = 6000;
+    stepsavg = 4000;
+    sleep = 24000;
+    sleepavg = 24000;
+
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
@@ -122,7 +124,7 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     if ((animating && !firstframe) || !grect_equal(&bounds, &unobstructed_bounds))
       return; // Don't draw graphs when quickview is enabled or animating
 
-    int maxstepsangle = PBL_IF_ROUND_ELSE(130, 120);
+    int maxstepsangle = PBL_IF_ROUND_ELSE(140, 120);
     int minstepsangle = PBL_IF_ROUND_ELSE(80, 70);
 
     #ifdef PBL_ROUND

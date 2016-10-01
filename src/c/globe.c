@@ -117,12 +117,9 @@ void spin_globe(int delay, int direction) {
   animation_schedule((Animation*)s_globe_animation);
 }
 
-void init_globe(Window *window) {
-  init_sqrt();
-
-  window_ref = window;
-  window_layer = window_get_root_layer(window);
-  GRect bounds = layer_get_unobstructed_bounds(window_layer);
+static void set_globe_size(GRect bounds) {
+  globeradius = bounds.size.h / 2;
+  if (globeradius > maxgloberadius) globeradius = maxgloberadius;
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
   #ifdef PBL_RECT
@@ -130,6 +127,15 @@ void init_globe(Window *window) {
   #endif
   xres = bounds.size.w;
   yres = bounds.size.h;
+}
+
+void init_globe(Window *window) {
+  init_sqrt();
+
+  window_ref = window;
+  window_layer = window_get_root_layer(window);
+  GRect bounds = layer_get_unobstructed_bounds(window_layer);
+  set_globe_size(bounds);
   // Create GBitmap, then set to created BitmapLayer
   s_globe_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_GLOBE);
   //int bytes = gbitmap_get_bytes_per_row(s_globe_bitmap);
@@ -147,15 +153,7 @@ void init_globe(Window *window) {
 void update_globe() {
   GRect bounds = layer_get_unobstructed_bounds(window_layer);
   layer_set_bounds(s_simple_bg_layer, bounds);
-  globeradius = bounds.size.h / 2;
-  if (globeradius > maxgloberadius) globeradius = maxgloberadius;
-  globecenterx = bounds.size.w / 2;
-  globecentery = bounds.size.h / 2;
-  #ifdef PBL_RECT
-  if (globecentery > 60) globecentery += 10;
-  #endif
-  xres = bounds.size.w;
-  yres = bounds.size.h;
+  set_globe_size(bounds);
 
   update_ball(globe, globeradius, globecenterx, globecentery);
   layer_mark_dirty(s_simple_bg_layer);

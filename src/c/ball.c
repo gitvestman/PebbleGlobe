@@ -90,6 +90,7 @@ void update_ball(Ball ball, int radius, int x, int y) {
   ball->radiusx2 = radius * radius;
   ball->centerx = x;
   ball->centery = y;
+  init_arccos(ball);
 }
 
 void destroy_ball(Ball ball) {
