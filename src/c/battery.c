@@ -8,6 +8,9 @@ static BatteryChargeState charge_state;
 #ifdef PBL_ROUND
 static int batteryx = 100;
 static int batteryy = 5;
+#elif PBL_PLATFORM_EMERY
+static int batteryx = 175;
+static int batteryy = 0;
 #else
 static int batteryx = 120;
 static int batteryy = 0;

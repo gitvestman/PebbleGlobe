@@ -14,8 +14,13 @@ static Window *window_ref;
 
 static Ball globe;
 
+#ifdef PBL_PLATFORM_EMERY
+static int8_t maxgloberadius = 75;
+static int8_t globeradius = 75;
+#else
 static int8_t maxgloberadius = 60;
 static int8_t globeradius = 60;
+#endif
 static uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 90;
 static int globelat = 0xF000;

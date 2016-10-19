@@ -1,54 +1,55 @@
 {
-    "author": "Vestman.Net",
-    "dependencies": {
-        "pebble-clay": "^1.0.2"
-    },
-    "keywords": [],
-    "name": "globe",
-    "pebble": {
-        "capabilities": [
-            "location",
-            "configurable",
-            "health"
-        ],
-        "displayName": "Globe",
-        "enableMultiJS": true,
-        "messageKeys": [
-            "KEY_LONGITUDE",
-            "KEY_LATITUDE",
-            "KEY_TIMEZONE",
-            "ShowDate",
-            "Inverted",
-            "ShowHealth",
-            "Animations",
-            "Bold"
-        ],
-        "projectType": "native",
-        "resources": {
-            "media": [
-                {
-                    "file": "images/globe_bw.png",
-                    "name": "IMAGE_ICON",
-                    "type": "bitmap"
-                },
-                {
-                    "file": "images/earth_place_dither180_bw.png",
-                    "name": "IMAGE_GLOBE",
-                    "type": "bitmap"
-                }
-            ]
+  "author": "Vestman.Net",
+  "dependencies": {
+    "pebble-clay": "^1.0.2"
+  },
+  "keywords": [],
+  "name": "globe",
+  "pebble": {
+    "capabilities": [
+      "location",
+      "configurable",
+      "health"
+    ],
+    "displayName": "Globe",
+    "enableMultiJS": true,
+    "messageKeys": [
+      "KEY_LONGITUDE",
+      "KEY_LATITUDE",
+      "KEY_TIMEZONE",
+      "ShowDate",
+      "Inverted",
+      "ShowHealth",
+      "Animations",
+      "Bold"
+    ],
+    "projectType": "native",
+    "resources": {
+      "media": [
+        {
+          "file": "images/globe_bw.png",
+          "name": "IMAGE_ICON",
+          "type": "bitmap"
         },
-        "sdkVersion": "3",
-        "targetPlatforms": [
-            "aplite",
-            "basalt",
-            "chalk",
-            "diorite"
-        ],
-        "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
-        "watchapp": {
-            "watchface": true
+        {
+          "file": "images/earth_place_dither180_bw.png",
+          "name": "IMAGE_GLOBE",
+          "type": "bitmap"
         }
+      ]
     },
-    "version": "1.15.0"
+    "sdkVersion": "3",
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery"
+    ],
+    "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
+    "watchapp": {
+      "watchface": true
+    }
+  },
+  "version": "1.15.0"
 }
