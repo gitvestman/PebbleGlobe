@@ -110,15 +110,15 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
     #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
     uint32_t pulse = health_service_peek_current_value(HealthMetricHeartRateBPM);
-    pulse = 100;
+    //pulse = 100;
     snprintf(pulsebuffer, sizeof(pulsebuffer), "%ld❤️", pulse);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
-    steps = 22000;
-    stepsavg = 4000;
-    sleep = 24000;
-    sleepavg = 24000;
+    //steps = 22000;
+    //stepsavg = 4000;
+    //sleep = 24000;
+    //sleepavg = 24000;
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
@@ -152,8 +152,8 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     #endif
 
     if (steps > 0 && stepsavg > 0) {
-        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorMelon: GColorRed, app_config.inverted ? GColorBlack : GColorWhite);
-        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorRed : GColorMelon, app_config.inverted ? GColorWhite : GColorBlack);
+        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorMelon : GColorRed, GColorLightGray);
+        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorRed : GColorMelon, app_config.inverted ? GColorBlack : GColorWhite);
         #ifdef PBL_ROUND
         int y = ((maxstepsangle - minstepsangle) * 3 / 4) * steps / stepsavg;
         if (y > (maxstepsangle - minstepsangle)) y = (maxstepsangle - minstepsangle);
@@ -164,21 +164,21 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
         #else
         int y = (bladelength * 3 / 4) * steps / stepsavg;
         if (y > bladelength) y = bladelength;
-        graphics_context_set_stroke_color(ctx, strokecolor);
+        graphics_context_set_fill_color(ctx, strokecolor);
+        GRect rect_outer_bounds = GRect(bounds.size.w - bladewidth - blademargin, bladestart - y, bladewidth, y);
+        GRect rect_inner_bounds = GRect(bounds.size.w - bladewidth - blademargin + 2, bladestart - y + 2, bladewidth - 4, y - 4);
+        graphics_fill_rect(ctx, rect_outer_bounds, 4, GCornersAll);              
         graphics_context_set_fill_color(ctx, fillcolor);
-        graphics_context_set_stroke_width(ctx, 2);
-        GRect rect_bounds = GRect(bounds.size.w - bladewidth - blademargin, bladestart - y, bladewidth, y);
-        graphics_fill_rect(ctx, rect_bounds, 2, GCornersAll);      
-        graphics_draw_round_rect(ctx, rect_bounds, GCornersAll);      
-        rect_bounds = GRect(bounds.size.w - bladewidth - blademargin + 2, bladestart -2, bladewidth - 4, bladewidth + 2);
+        graphics_fill_rect(ctx, rect_inner_bounds, 2, GCornersAll);              
+        GRect rect_bounds = GRect(bounds.size.w - bladewidth - blademargin + 2, bladestart -2, bladewidth - 4, bladewidth + 2);
         graphics_context_set_fill_color(ctx, GColorLightGray);
         graphics_fill_rect(ctx, rect_bounds, 0, GCornersAll);      
         #endif
     }
 
     if (sleep > 0 && sleepavg > 0) {
-        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorBabyBlueEyes: GColorBlue, app_config.inverted ? GColorBlack : GColorWhite);
-        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorBlue : GColorBabyBlueEyes, app_config.inverted ? GColorWhite : GColorBlack);
+        GColor strokecolor = COLOR_FALLBACK(app_config.inverted ? GColorBabyBlueEyes: GColorBlue, GColorLightGray);
+        GColor fillcolor = COLOR_FALLBACK(app_config.inverted ? GColorBlue : GColorBabyBlueEyes, app_config.inverted ? GColorBlack : GColorWhite);
         #ifdef PBL_ROUND
         int y = ((maxstepsangle - minstepsangle) * 3 / 4) * sleep / sleepavg;
         if (y > (maxstepsangle - minstepsangle)) y = (maxstepsangle - minstepsangle);
@@ -189,13 +189,13 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
         #else
         int y = (bladelength * 4 / 5) * sleep / sleepavg;
         if (y > bladelength) y = bladelength;
-        GRect rect_bounds = GRect(blademargin, bladestart - y, bladewidth, y);
-        graphics_context_set_stroke_color(ctx, strokecolor);
+        GRect rect_outer_bounds = GRect(blademargin, bladestart - y, bladewidth, y);
+        GRect rect_inner_bounds = GRect(blademargin + 2, bladestart - y + 2, bladewidth - 4, y - 4);
+        graphics_context_set_fill_color(ctx, strokecolor);
+        graphics_fill_rect(ctx, rect_outer_bounds, 4, GCornersAll);      
         graphics_context_set_fill_color(ctx, fillcolor);
-        graphics_context_set_stroke_width(ctx, 2);
-        graphics_fill_rect(ctx, rect_bounds, 2, GCornersAll);      
-        graphics_draw_round_rect(ctx, rect_bounds, GCornersAll);      
-        rect_bounds = GRect(blademargin + 2, bladestart -2, bladewidth - 4, bladewidth + 2);
+        graphics_fill_rect(ctx, rect_inner_bounds, 2, GCornersAll);      
+        GRect rect_bounds = GRect(blademargin + 2, bladestart -2, bladewidth - 4, bladewidth + 2);
         graphics_context_set_fill_color(ctx, GColorLightGray);
         graphics_fill_rect(ctx, rect_bounds, 0, GCornersAll);      
         #endif        
