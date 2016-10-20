@@ -34,7 +34,12 @@ struct ball {
 #define DRAW_ROUND_PIXEL( rowdata, x, color ) \
       (rowdata[x] = color);
 
-static int8_t sqrt_lookup[4500];
+#ifdef PBL_PLATFORM_EMERY
+#define SQRT_LOOKUP_SIZE 12000
+#else
+#define SQRT_LOOKUP_SIZE 4500
+#endif
+static int8_t sqrt_lookup[SQRT_LOOKUP_SIZE];
 
 // http://en.wikipedia.org/wiki/Fast_inverse_square_root
 #define SQRT_MAGIC_F 0x5f3759df
@@ -52,7 +57,7 @@ inline float  sqrt_fast(const float x){
 }
 
 void init_sqrt() {
-  for (int i = 0; i < 4500; i++) {
+  for (int i = 0; i < SQRT_LOOKUP_SIZE; i++) {
     sqrt_lookup[i] = sqrt_fast(i);
   }
 }

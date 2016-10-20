@@ -9,7 +9,7 @@ static BatteryChargeState charge_state;
 static int batteryx = 100;
 static int batteryy = 5;
 #else
-static int batteryx = 120;
+static int batteryx = PBL_DISPLAY_WIDTH - 24;
 static int batteryy = 0;
 #endif
 
@@ -37,9 +37,6 @@ void battery_layer_update_callback(Layer *layer, GContext *ctx) {
 }
 
 void init_battery(Window *window) {
-  // Subscribe to battery status
-  //battery_state_service_subscribe(handle_battery);
-
   // Create Battery layer
   s_battery_layer = layer_create(GRect(batteryx, batteryy, 24, 16));
   layer_set_update_proc(s_battery_layer, battery_layer_update_callback);
@@ -47,6 +44,5 @@ void init_battery(Window *window) {
 }
 
 void destroy_battery() {
-  battery_state_service_unsubscribe();
   layer_destroy(s_battery_layer);
 }

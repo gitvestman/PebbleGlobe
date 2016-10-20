@@ -13,11 +13,17 @@ static Window *window_ref;
 static Ball body;
 static Ball head;
 
+#ifdef PBL_PLATFORM_EMERY
+static int8_t maxgloberadius = 60;
+static int8_t globeradius = 60;
+static int16_t headradius = 36;
+#else
 static int8_t maxgloberadius = 48;
-static int16_t globeradius = 48;
+static int8_t globeradius = 48;
+static int16_t headradius = 28;
+#endif
 static uint_fast8_t globecenterx, globecentery;
 
-static int16_t headradius = 28;
 static uint_fast8_t headcenterx, headcentery;
 
 static uint16_t globelong = 15000;

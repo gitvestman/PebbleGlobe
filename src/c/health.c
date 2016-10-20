@@ -10,7 +10,7 @@ static TextLayer *s_sleep_text_layer;
 static Layer *s_health_layer;
 static GFont s_health_font;
 static GFont s_health_bold_font;
-#ifdef PBL_PLATFORM_DIORITE
+#if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
 static TextLayer *s_pulse_text_layer;
 static GFont s_pulse_font;
 static GFont s_pulse_bold_font;
@@ -26,7 +26,7 @@ static char stepsbuffer[] = "10.0k";
 static char sleepbuffer[] = "13.5h ";
 
 void health_unobstructed_did_change(void *context) {
-    #ifdef PBL_PLATFORM_DIORITE
+    #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
     // Get the total available screen real-estate
     GRect unobstructed_bounds = layer_get_unobstructed_bounds(s_window_layer);
     // Move pulse layer  
@@ -59,7 +59,6 @@ static HealthValue get_health_average(HealthMetric metric, bool daily) {
     const time_t end = time(NULL);
     if (!daily) {
         start = end - 10; // Last 10 seconds
-        APP_LOG(APP_LOG_LEVEL_INFO, "get_health_average: daily %d - %d", (int)start, (int)end);        
     }
 
     // Check that an averaged value is accessible
@@ -94,11 +93,11 @@ static void update_health_settings()  {
         text_layer_set_background_color(s_sleep_text_layer, background);
         text_layer_set_text_color(s_sleep_text_layer, textcolor);
 
-        #ifdef PBL_PLATFORM_DIORITE
-        text_layer_set_font(s_pulse_text_layer, app_config.bold ? s_pulse_bold_font : s_pulse_font);
-        text_layer_set_background_color(s_pulse_text_layer, background);
-        text_layer_set_text_color(s_pulse_text_layer, textcolor);
-        #endif
+    #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
+    text_layer_set_font(s_pulse_text_layer, app_config.bold ? s_pulse_bold_font : s_pulse_font);
+    text_layer_set_background_color(s_pulse_text_layer, background);
+    text_layer_set_text_color(s_pulse_text_layer, textcolor);
+    #endif
     }
 }
 
@@ -109,14 +108,14 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int sleep = get_health_data(HealthMetricSleepSeconds);
     int stepsavg = get_health_average(HealthMetricStepCount, true);
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
-    #ifdef PBL_PLATFORM_DIORITE    
+    #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
     uint32_t pulse = health_service_peek_current_value(HealthMetricHeartRateBPM);
     //pulse = 100;
     snprintf(pulsebuffer, sizeof(pulsebuffer), "%ld❤️", pulse);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
-    //steps = 6000;
+    //steps = 22000;
     //stepsavg = 4000;
     //sleep = 24000;
     //sleepavg = 24000;
@@ -134,6 +133,11 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     int maxstepsangle = PBL_IF_ROUND_ELSE(140, 120);
     int minstepsangle = PBL_IF_ROUND_ELSE(90, 70);
+    int radialwidth = 6;
+    #ifdef PBL_PLATFORM_EMERY
+    maxstepsangle = 140;
+    radialwidth = 10;
+    #endif
 
     #ifdef PBL_ROUND
     GRect frame = grect_inset(bounds, GEdgeInsets(15, 15, 15, 15));
@@ -195,12 +199,12 @@ void init_health(Window *window) {
   int sleepy = stepsy;
 
   // Create steps textlayer
-  s_steps_text_layer = text_layer_create(GRect(stepsx, stepsy, 30, 18));
+  s_steps_text_layer = text_layer_create(GRect(stepsx, stepsy, 30, 24));
 
   // Create sleep textlayer
-  s_sleep_text_layer = text_layer_create(GRect(sleepx, sleepy, 30, 18));
+  s_sleep_text_layer = text_layer_create(GRect(sleepx, sleepy, 30, 24));
 
-  #ifdef PBL_PLATFORM_DIORITE
+  #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
   // Create pulse textlayer
   GRect unobstructed_bounds = layer_get_unobstructed_bounds(s_window_layer);
   s_pulse_text_layer = text_layer_create(GRect(sleepx, unobstructed_bounds.size.h - 30, 60, 30));
@@ -219,8 +223,13 @@ void init_health(Window *window) {
   layer_add_child(window_get_root_layer(window), s_health_layer);
 
   // Create Fonts
+  #ifdef PBL_PLATFORM_EMERY
+  s_health_font = fonts_get_system_font(FONT_KEY_GOTHIC_24);
+  s_health_bold_font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+  #else
   s_health_font = fonts_get_system_font(FONT_KEY_GOTHIC_18);
   s_health_bold_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  #endif
 
   text_layer_set_text_alignment(s_steps_text_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_steps_text_layer));

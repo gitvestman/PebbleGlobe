@@ -1,33 +1,33 @@
 {
-    "author": "Vestman.Net",
-    "dependencies": {
-        "pebble-clay": "^1.0.2"
-    },
-    "keywords": [],
+  "author": "Vestman.Net",
+  "dependencies": {
+    "pebble-clay": "^1.0.2"
+  },
+  "keywords": [],
     "name": "BB8",
-    "pebble": {
-        "capabilities": [
-            "configurable",
-            "health"
-        ],
+  "pebble": {
+    "capabilities": [
+      "configurable",
+      "health"
+    ],
         "displayName": "BB8",
-        "enableMultiJS": true,
-        "messageKeys": [
-            "ShowDate",
-            "Inverted",
-            "ShowHealth",
-            "Animations",
-            "Bold"
-        ],
-        "projectType": "native",
-        "resources": {
-            "media": [
-                {
+    "enableMultiJS": true,
+    "messageKeys": [
+      "ShowDate",
+      "Inverted",
+      "ShowHealth",
+      "Animations",
+      "Bold"
+    ],
+    "projectType": "native",
+    "resources": {
+      "media": [
+        {
                     "file": "images/BB8.png",
                     "name": "IMAGE_GLOBE",
                     "type": "png"
-                },
-                {
+        },
+        {
                     "file": "images/BB8-Head.png",
                     "name": "IMAGE_HEAD",
                     "type": "png"
@@ -35,21 +35,22 @@
                 {
                     "file": "images/globe_bw.png",
                     "name": "IMAGE_ICON",
-                    "type": "bitmap"
-                }
-            ]
-        },
-        "sdkVersion": "3",
-        "targetPlatforms": [
-            "aplite",
-            "basalt",
-            "chalk",
-            "diorite"
-        ],
-        "uuid": "9b385b97-a8cd-497a-9be3-3ca62b42d818",
-        "watchapp": {
-            "watchface": true
+          "type": "png"
         }
+      ]
     },
+    "sdkVersion": "3",
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery"
+    ],
+        "uuid": "9b385b97-a8cd-497a-9be3-3ca62b42d818",
+    "watchapp": {
+      "watchface": true
+    }
+  },
     "version": "1.6.0"
 }
