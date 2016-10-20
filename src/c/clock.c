@@ -16,16 +16,16 @@ static long tick_count = 0;
 
 #ifdef PBL_ROUND
 static int timex = 16;
-static int timex2 = 107;
+static int timedx2 = -73;
 static int timey = 25;
-static int datenx = -170;
-static int dateny = -38;
+static int datedx = -170;
+static int datedy = -38;
 #else
 static int timex = 0;
-static int timex2 = 80;
+static int timedx2 = -64;
 static int timey = 2;
-static int datenx = -120;
-static int dateny = -30;
+static int datedx = -120;
+static int datedy = -30;
 #endif
 
 extern bool animating;
@@ -50,8 +50,9 @@ void reset_ticks() {
 void clock_unobstructed_did_change(void *context) {
   // Get the total available screen real-estate
   GRect bounds = layer_get_unobstructed_bounds(s_window_layer);
-  int datex = bounds.size.w + datenx;
-  int datey = bounds.size.h + dateny;
+  int datex = bounds.size.w + datedx;
+  int datey = bounds.size.h + datedy;
+  int timex2 = bounds.size.w + timedx2;
 
   // Move date textlayer
   layer_set_frame((Layer *)s_date_layer, GRect(datex,datey,118,30));
@@ -97,9 +98,9 @@ void init_time(Window *window) {
   tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
   GRect bounds = layer_get_unobstructed_bounds(s_window_layer);
-  int datex = bounds.size.w + datenx;
-  int datey = bounds.size.h + dateny;
-
+  int datex = bounds.size.w + datedx;
+  int datey = bounds.size.h + datedy;
+  int timex2 = bounds.size.w + timedx2;
 
   // Create hour time textlayer
   s_time_layer = text_layer_create(GRect(timex,timey,60,45));

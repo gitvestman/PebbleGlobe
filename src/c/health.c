@@ -93,11 +93,11 @@ static void update_health_settings()  {
         text_layer_set_background_color(s_sleep_text_layer, background);
         text_layer_set_text_color(s_sleep_text_layer, textcolor);
 
-    #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
-    text_layer_set_font(s_pulse_text_layer, app_config.bold ? s_pulse_bold_font : s_pulse_font);
-    text_layer_set_background_color(s_pulse_text_layer, background);
-    text_layer_set_text_color(s_pulse_text_layer, textcolor);
-    #endif
+        #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
+        text_layer_set_font(s_pulse_text_layer, app_config.bold ? s_pulse_bold_font : s_pulse_font);
+        text_layer_set_background_color(s_pulse_text_layer, background);
+        text_layer_set_text_color(s_pulse_text_layer, textcolor);
+        #endif
     }
 }
 
@@ -110,15 +110,15 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
     #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
     uint32_t pulse = health_service_peek_current_value(HealthMetricHeartRateBPM);
-    //pulse = 100;
+    pulse = 100;
     snprintf(pulsebuffer, sizeof(pulsebuffer), "%ld❤️", pulse);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
-    //steps = 22000;
-    //stepsavg = 4000;
-    //sleep = 24000;
-    //sleepavg = 24000;
+    steps = 22000;
+    stepsavg = 4000;
+    sleep = 24000;
+    sleepavg = 24000;
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
@@ -131,17 +131,24 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     if ((animating && !firstframe) || !grect_equal(&bounds, &unobstructed_bounds))
       return; // Don't draw graphs when quickview is enabled or animating
 
+    #ifdef PBL_ROUND
     int maxstepsangle = PBL_IF_ROUND_ELSE(140, 120);
     int minstepsangle = PBL_IF_ROUND_ELSE(90, 70);
-    int radialwidth = 6;
-    #ifdef PBL_PLATFORM_EMERY
-    maxstepsangle = 140;
-    radialwidth = 10;
-    #endif
 
-    #ifdef PBL_ROUND
     GRect frame = grect_inset(bounds, GEdgeInsets(15, 15, 15, 15));
     GRect frame2 = grect_inset(bounds, GEdgeInsets(13, 13, 13, 13));
+    #endif 
+
+    #ifdef PBL_PLATFORM_EMERY
+    int bladewidth = 10;
+    int bladestart = 190;
+    int bladelength = 100;
+    int blademargin = 7;
+    #else
+    int bladewidth = 8;
+    int bladestart = 135;
+    int bladelength = 70;
+    int blademargin = 5;
     #endif
 
     if (steps > 0 && stepsavg > 0) {
@@ -155,14 +162,17 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
         graphics_context_set_fill_color(ctx, fillcolor);
         graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 4, DEG_TO_TRIGANGLE(maxstepsangle - y), DEG_TO_TRIGANGLE(maxstepsangle));
         #else
-        int y = (70 * 3 / 4) * steps / stepsavg;
-        if (y > 70) y = 70;
-        GRect rect_bounds = GRect(bounds.size.w - 12, 135 - y, 8, y);
+        int y = (bladelength * 3 / 4) * steps / stepsavg;
+        if (y > bladelength) y = bladelength;
         graphics_context_set_stroke_color(ctx, strokecolor);
         graphics_context_set_fill_color(ctx, fillcolor);
         graphics_context_set_stroke_width(ctx, 2);
+        GRect rect_bounds = GRect(bounds.size.w - bladewidth - blademargin, bladestart - y, bladewidth, y);
         graphics_fill_rect(ctx, rect_bounds, 2, GCornersAll);      
         graphics_draw_round_rect(ctx, rect_bounds, GCornersAll);      
+        rect_bounds = GRect(bounds.size.w - bladewidth - blademargin + 2, bladestart -2, bladewidth - 4, bladewidth + 2);
+        graphics_context_set_fill_color(ctx, GColorLightGray);
+        graphics_fill_rect(ctx, rect_bounds, 0, GCornersAll);      
         #endif
     }
 
@@ -177,14 +187,17 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
         graphics_context_set_fill_color(ctx, fillcolor);
         graphics_fill_radial(ctx, frame, GOvalScaleModeFitCircle, 4, DEG_TO_TRIGANGLE(- maxstepsangle), DEG_TO_TRIGANGLE( - (maxstepsangle - y)));
         #else
-        int y = (70 * 4 / 5) * sleep / sleepavg;
-        if (y > 70) y = 70;
-        GRect rect_bounds = GRect(5, 135 - y, 8, y);
+        int y = (bladelength * 4 / 5) * sleep / sleepavg;
+        if (y > bladelength) y = bladelength;
+        GRect rect_bounds = GRect(blademargin, bladestart - y, bladewidth, y);
         graphics_context_set_stroke_color(ctx, strokecolor);
         graphics_context_set_fill_color(ctx, fillcolor);
         graphics_context_set_stroke_width(ctx, 2);
         graphics_fill_rect(ctx, rect_bounds, 2, GCornersAll);      
         graphics_draw_round_rect(ctx, rect_bounds, GCornersAll);      
+        rect_bounds = GRect(blademargin + 2, bladestart -2, bladewidth - 4, bladewidth + 2);
+        graphics_context_set_fill_color(ctx, GColorLightGray);
+        graphics_fill_rect(ctx, rect_bounds, 0, GCornersAll);      
         #endif        
     }
 }

@@ -80,7 +80,7 @@ Ball create_ball(GBitmap *bitmap, int radius, int x, int y) {
   ball->bitmapsize = ball->bitmapwidth * ball->bitmapbounds.size.h;
   ball->radius = radius;
   ball->radiusx2 = radius * radius;
-  ball->outerradiusx2 = (radius + 1) * (radius + 1);
+  ball->outerradiusx2 = (radius + 2) * (radius + 2);
   ball->centerx = x;
   ball->centery = y;
   ball->arccos = malloc(sizeof(int32_t) * 81);
