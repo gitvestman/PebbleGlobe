@@ -34,6 +34,20 @@ void battery_layer_update_callback(Layer *layer, GContext *ctx) {
   int width = (charge_state.charge_percent * 10 / 100);
   graphics_context_set_fill_color(ctx, iconcolor);
   graphics_fill_rect(ctx, GRect(8, 6, width, 4), 0, GCornerNone);
+
+  if (charge_state.is_charging) {
+    GColor chargecolor = COLOR_FALLBACK(GColorChromeYellow, app_config.inverted ? GColorBlack : GColorWhite);
+    graphics_context_set_stroke_color(ctx, chargecolor);
+  #ifdef PBL_BW  
+    GColor bgcolor = app_config.inverted ? GColorWhite : GColorBlack;
+    graphics_context_set_fill_color(ctx, bgcolor);
+    graphics_fill_rect(ctx, GRect(10, 4, 6, 8), 0, GCornerNone);
+  #endif
+    graphics_draw_line(ctx, GPoint(14, 4), GPoint(10, 9));
+    graphics_draw_line(ctx, GPoint(15, 4), GPoint(11, 9));
+    graphics_draw_line(ctx, GPoint(14, 7), GPoint(10, 12));        
+    graphics_draw_line(ctx, GPoint(15, 7), GPoint(11, 12));        
+  }
 }
 
 void init_battery(Window *window) {

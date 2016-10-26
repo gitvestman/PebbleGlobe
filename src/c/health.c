@@ -72,7 +72,7 @@ static HealthValue get_health_average(HealthMetric metric, bool daily) {
 }
 
 static void update_health_settings()  {
-    if (!app_config.showHealth) {
+   if (!app_config.showHealth) {
         layer_set_hidden((Layer *)s_steps_text_layer, true);
         layer_set_hidden((Layer *)s_sleep_text_layer, true);
     } else {
@@ -108,17 +108,18 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int sleep = get_health_data(HealthMetricSleepSeconds);
     int stepsavg = get_health_average(HealthMetricStepCount, true);
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
+    if (sleep > 0 && sleepavg == 0) sleepavg = 20000;
     #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
     uint32_t pulse = health_service_peek_current_value(HealthMetricHeartRateBPM);
-    //pulse = 100;
+    //pulse = 85;
     snprintf(pulsebuffer, sizeof(pulsebuffer), "%ld❤️", pulse);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
     //steps = 22000;
     //stepsavg = 4000;
-    //sleep = 24000;
-    //sleepavg = 24000;
+    //sleep = 15000;
+    //sleepavg = 15000;
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
@@ -254,7 +255,7 @@ void init_health(Window *window) {
 }
 
 void destroy_health() {
-  #ifdef PBL_PLATFORM_DIORITE    
+  #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
   text_layer_destroy(s_pulse_text_layer);
   #endif
   text_layer_destroy(s_steps_text_layer);
