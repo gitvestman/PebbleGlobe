@@ -8,13 +8,14 @@ int currentlong;
 int currentlat;
 int16_t timezone_offset;
 Config app_config = { .showDate = true, .showHealth = true, .animations = true, .inverted = false, .bold = false };
+GColor background_color;
 #define SETTINGS_KEY 1
 
 // Read settings from persistent storage
 static void prv_load_settings() {
   // Read settings from persistent storage, if they exist
   persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
-  window_set_background_color(window_ref, app_config.inverted ? GColorWhite : GColorBlack);
+  background_color = app_config.inverted ? GColorWhite : GColorBlack;
   update_time();
   layer_mark_dirty(root_layer);
 }
@@ -23,6 +24,7 @@ static void prv_load_settings() {
 static void prv_save_settings() {
   persist_write_data(SETTINGS_KEY, &app_config, sizeof(app_config));
   window_set_background_color(window_ref, app_config.inverted ? GColorWhite : GColorBlack);
+  background_color = app_config.inverted ? GColorWhite : GColorBlack;
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -90,9 +92,19 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
+void root_layer_update_proc(Layer *layer, GContext *ctx)
+{
+  if (background_color.argb != GColorClearARGB8) 
+  {
+    graphics_context_set_fill_color(ctx, background_color);
+    graphics_fill_rect(ctx, layer_get_bounds(layer), 0, GCornerNone);
+  }
+}
+
 void message_init(Window *window) {
   window_ref = window;
   root_layer = window_get_root_layer(window);
+  layer_set_update_proc(root_layer, root_layer_update_proc);
   prv_load_settings();
   // Register callbacks
   app_message_register_inbox_received(inbox_received_callback);

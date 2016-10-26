@@ -72,25 +72,33 @@ static HealthValue get_health_average(HealthMetric metric, bool daily) {
 }
 
 static void update_health_settings()  {
-    // Set fonts
-    text_layer_set_font(s_steps_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
-    text_layer_set_font(s_sleep_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
+   if (!app_config.showHealth) {
+        layer_set_hidden((Layer *)s_steps_text_layer, true);
+        layer_set_hidden((Layer *)s_sleep_text_layer, true);
+    } else {
+        layer_set_hidden((Layer *)s_steps_text_layer, false);
+        layer_set_hidden((Layer *)s_sleep_text_layer, false);
 
-    // Set text colors
-    GColor background = GColorClear;
-    GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
+        // Set fonts
+        text_layer_set_font(s_steps_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
+        text_layer_set_font(s_sleep_text_layer, app_config.bold ? s_health_bold_font : s_health_font);
 
-    text_layer_set_background_color(s_steps_text_layer, background);
-    text_layer_set_text_color(s_steps_text_layer, textcolor);
+        // Set text colors
+        GColor background = GColorClear;
+        GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
 
-    text_layer_set_background_color(s_sleep_text_layer, background);
-    text_layer_set_text_color(s_sleep_text_layer, textcolor);
+        text_layer_set_background_color(s_steps_text_layer, background);
+        text_layer_set_text_color(s_steps_text_layer, textcolor);
 
-    #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
-    text_layer_set_font(s_pulse_text_layer, app_config.bold ? s_pulse_bold_font : s_pulse_font);
-    text_layer_set_background_color(s_pulse_text_layer, background);
-    text_layer_set_text_color(s_pulse_text_layer, textcolor);
-    #endif
+        text_layer_set_background_color(s_sleep_text_layer, background);
+        text_layer_set_text_color(s_sleep_text_layer, textcolor);
+
+        #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
+        text_layer_set_font(s_pulse_text_layer, app_config.bold ? s_pulse_bold_font : s_pulse_font);
+        text_layer_set_background_color(s_pulse_text_layer, background);
+        text_layer_set_text_color(s_pulse_text_layer, textcolor);
+        #endif
+    }
 }
 
 static void health_update_proc(Layer *layer, GContext *ctx) {
@@ -100,17 +108,18 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     int sleep = get_health_data(HealthMetricSleepSeconds);
     int stepsavg = get_health_average(HealthMetricStepCount, true);
     int sleepavg = get_health_average(HealthMetricSleepSeconds, true);
+    if (sleep > 0 && sleepavg == 0) sleepavg = 20000;
     #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
     uint32_t pulse = health_service_peek_current_value(HealthMetricHeartRateBPM);
-    //pulse = 100;
+    //pulse = 85;
     snprintf(pulsebuffer, sizeof(pulsebuffer), "%ld❤️", pulse);
     text_layer_set_text(s_pulse_text_layer, pulsebuffer);
     #endif
 
     //steps = 22000;
     //stepsavg = 4000;
-    //sleep = 24000;
-    //sleepavg = 24000;
+    //sleep = 15000;
+    //sleepavg = 15000;
 
     snprintf(stepsbuffer, sizeof(stepsbuffer), "%dk", steps/1000);
     text_layer_set_text(s_steps_text_layer, stepsbuffer);
@@ -206,7 +215,7 @@ void init_health(Window *window) {
 }
 
 void destroy_health() {
-  #ifdef PBL_PLATFORM_DIORITE    
+  #if defined(PBL_PLATFORM_DIORITE) || defined(PBL_PLATFORM_EMERY)    
   text_layer_destroy(s_pulse_text_layer);
   #endif
   text_layer_destroy(s_steps_text_layer);

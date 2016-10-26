@@ -88,7 +88,7 @@ static void anim_stopped_handler(Animation* anim, bool finished, void* context) 
   animation_destroy(anim);
   animating = false;
   GColor background = app_config.inverted ? GColorWhite : GColorBlack;
-  window_set_background_color(window_ref, background);
+  background_color = background;
   reset_ticks();
   //APP_LOG(APP_LOG_LEVEL_INFO, "Animation count %d", animation_count);
 }
@@ -100,7 +100,7 @@ static void anim_update_handler(Animation* anim, AnimationProgress progress) {
   if (animation_count == 1) {
     firstframe = false;
   }
-  window_set_background_color(window_ref, GColorClear);
+  background_color = GColorClear;
   animation_count++;
 }
 
