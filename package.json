@@ -3,23 +3,18 @@
   "dependencies": {
     "pebble-clay": "^1.0.2"
   },
-  "keywords": [],
-  "name": "globe",
+  "keywords": ["pebble-app","Halloween"],
+  "name": "JackO",
   "pebble": {
     "capabilities": [
-      "location",
-      "configurable",
-      "health"
+      "configurable"
     ],
-    "displayName": "Globe",
+    "displayName": "JackO",
     "enableMultiJS": true,
     "messageKeys": [
-      "KEY_LONGITUDE",
-      "KEY_LATITUDE",
-      "KEY_TIMEZONE",
+      "ShowTime",
       "ShowDate",
       "Inverted",
-      "ShowHealth",
       "Animations",
       "Bold"
     ],
@@ -46,10 +41,10 @@
       "diorite",
       "emery"
     ],
-    "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
+    "uuid": "67eb62c9-d367-4e65-9911-abb224e02743",
     "watchapp": {
       "watchface": true
     }
   },
-  "version": "1.17.0"
+  "version": "1.0.0"
 }

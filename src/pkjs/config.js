@@ -47,10 +47,10 @@ module.exports = [
         "label": "Show Date",
         "defaultValue": true
        },
-      {
+       {
         "type": "toggle",
-        "messageKey": "ShowHealth",
-        "label": "Show Health Info",
+        "messageKey": "ShowTime",
+        "label": "Show Time",
         "defaultValue": true
        }
     ]

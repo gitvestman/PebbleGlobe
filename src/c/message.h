@@ -2,15 +2,12 @@
 
 typedef struct config {
   bool showDate;
-  bool showHealth;
+  bool showTime;
   bool animations;
   bool inverted;
   bool bold;
 } Config;
 
-extern int currentlong;
-extern int currentlat;
-extern int16_t timezone_offset;
 extern Config app_config;
 extern GColor background_color;
 

@@ -125,6 +125,11 @@ void init_time(Window *window) {
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
 
+  if (!app_config.showTime) {
+    layer_set_hidden((Layer *)s_time_layer, true);
+    layer_set_hidden((Layer *)s_time_shadow_layer, true);
+  }
+
   if (!app_config.showDate) {
     layer_set_hidden((Layer *)s_date_layer, true);
     layer_set_hidden((Layer *)s_date_shadow_layer, true);
@@ -146,18 +151,23 @@ void update_time() {
   static char datebuffer[] = "Tuesday 31 ";
   static char timeshadowbuffer[] = "00:00 ";
   static char dateshadowbuffer[] = "Tuesday 31 ";
-
-  // Write the current hours and minutes into the buffer
-  if (clock_is_24h_style()) {
-    // use 24 hour format
-    strftime(timebuffer, sizeof(timebuffer), "%H:%M", tick_time);
+  
+  if (app_config.showTime) {
+    // Write the current hours and minutes into the buffer
+    if (clock_is_24h_style()) {
+      // use 24 hour format
+      strftime(timebuffer, sizeof(timebuffer), "%H:%M", tick_time);
+    } else {
+      strftime(timebuffer, sizeof(timebuffer), "%l:%M", tick_time);
+    }
+    strncpy(timeshadowbuffer, timebuffer, sizeof(timebuffer));
+    // Display the time
+    text_layer_set_text(s_time_layer, timebuffer);
+    text_layer_set_text(s_time_shadow_layer, timeshadowbuffer);
   } else {
-    strftime(timebuffer, sizeof(timebuffer), "%l:%M", tick_time);
+    layer_set_hidden((Layer *)s_time_layer, true);
+    layer_set_hidden((Layer *)s_time_shadow_layer, true);
   }
-  strncpy(timeshadowbuffer, timebuffer, sizeof(timebuffer));
-  // Display the time
-  text_layer_set_text(s_time_layer, timebuffer);
-  text_layer_set_text(s_time_shadow_layer, timeshadowbuffer);
 
   if (app_config.showDate) {
     layer_set_hidden((Layer *)s_date_layer, false);
@@ -172,15 +182,6 @@ void update_time() {
     layer_set_hidden((Layer *)s_date_layer, true);
     layer_set_hidden((Layer *)s_date_shadow_layer, true);
   }
-  // Calculate sun position
-  struct tm *gm_time = gmtime(&now);
-#if PBL_PLATFORM_APLITE
-  gm_time->tm_hour += timezone_offset / 60;
-  mktime(gm_time);
-#endif
-  int16_t sunlong = (int16_t)(TRIG_MAX_ANGLE/2 + TRIG_MAX_ANGLE/4 - (int)(gm_time->tm_hour * 2730.6 + gm_time->tm_min * 45.5));
-  int16_t sunlat = (int16_t)((cos_lookup((gm_time->tm_yday - 7) * TRIG_MAX_ANGLE / 365))/32) - 0x200;
-  set_sun_position(sunlong, sunlat);
 }
 
 void destroy_time() {
