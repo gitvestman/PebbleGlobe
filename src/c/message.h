@@ -6,6 +6,7 @@ typedef struct config {
   bool animations;
   bool inverted;
   bool bold;
+  bool showBattery;
 } Config;
 
 extern int currentlong;

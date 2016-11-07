@@ -52,6 +52,12 @@ module.exports = [
         "messageKey": "ShowHealth",
         "label": "Show Health Info",
         "defaultValue": true
+       },
+      {
+        "type": "toggle",
+        "messageKey": "ShowBattery",
+        "label": "Show Battery Status",
+        "defaultValue": true
        }
     ]
   },

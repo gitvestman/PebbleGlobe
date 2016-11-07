@@ -21,7 +21,8 @@
       "Inverted",
       "ShowHealth",
       "Animations",
-      "Bold"
+      "Bold",
+      "ShowBattery"
     ],
     "projectType": "native",
     "resources": {

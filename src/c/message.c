@@ -7,7 +7,7 @@ Layer* root_layer;
 int currentlong;
 int currentlat;
 int16_t timezone_offset;
-Config app_config = { .showDate = true, .showHealth = true, .animations = true, .inverted = false, .bold = false };
+Config app_config = { .showDate = true, .showHealth = true, .animations = true, .inverted = false, .bold = false, .showBattery = true };
 GColor background_color;
 #define SETTINGS_KEY 1
 
@@ -66,6 +66,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *showHealth_t = dict_find(iterator, MESSAGE_KEY_ShowHealth);
   if (showHealth_t) {
     app_config.showHealth = showHealth_t->value->int32 == 1;
+  }
+
+  // showBattery
+  Tuple *showBattery_t = dict_find(iterator, MESSAGE_KEY_ShowBattery);
+  if (showBattery_t) {
+    app_config.showBattery = showBattery_t->value->int32 == 1;
   }
 
   // Animation
