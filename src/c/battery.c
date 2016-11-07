@@ -20,6 +20,8 @@ static void handle_battery(BatteryChargeState state) {
 
 void battery_layer_update_callback(Layer *layer, GContext *ctx) {
   // Draw the battery:
+  if (!app_config.showBattery)
+    return;
   #ifdef PBL_BW  
   GColor iconcolor = app_config.inverted ? GColorBlack : GColorWhite;
   #else
