@@ -52,6 +52,12 @@ module.exports = [
         "messageKey": "ShowTime",
         "label": "Show Time",
         "defaultValue": true
+       },
+      {
+        "type": "toggle",
+        "messageKey": "ShowBattery",
+        "label": "Show Battery Status",
+        "defaultValue": true
        }
     ]
   },

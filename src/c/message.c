@@ -5,7 +5,7 @@
 Window* window_ref;
 Layer* root_layer;
 int16_t timezone_offset;
-Config app_config = { .showDate = true, .showTime = true, .animations = true, .inverted = false, .bold = false };
+Config app_config = { .showDate = true, .showTime = true, .animations = true, .inverted = false, .bold = false, .showBattery = true };
 GColor background_color;
 #define SETTINGS_KEY 1
 
@@ -48,6 +48,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   Tuple *showTime_t = dict_find(iterator, MESSAGE_KEY_ShowTime);
   if (showTime_t) {
     app_config.showTime = showTime_t->value->int32 == 1;
+  }
+
+  // showBattery
+  Tuple *showBattery_t = dict_find(iterator, MESSAGE_KEY_ShowBattery);
+  if (showBattery_t) {
+    app_config.showBattery = showBattery_t->value->int32 == 1;
   }
 
   // Animation

@@ -16,7 +16,8 @@
       "ShowDate",
       "Inverted",
       "Animations",
-      "Bold"
+      "Bold",
+      "ShowBattery"
     ],
     "projectType": "native",
     "resources": {
