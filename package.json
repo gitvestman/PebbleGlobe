@@ -1,0 +1,51 @@
+{
+  "author": "Vestman.Net",
+  "dependencies": {
+    "pebble-clay": "^1.0.2"
+  },
+  "keywords": [],
+  "name": "pluto",
+  "pebble": {
+    "capabilities": [
+      "location",
+      "configurable"
+    ],
+    "displayName": "Pluto",
+    "enableMultiJS": true,
+    "messageKeys": [
+      "ShowDate",
+      "Inverted",
+      "Animations",
+      "Bold",
+      "ShowBattery"
+    ],
+    "projectType": "native",
+    "resources": {
+      "media": [
+        {
+          "file": "images/globe_bw.png",
+          "name": "IMAGE_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "images/pluto.png",
+          "name": "IMAGE_GLOBE",
+          "type": "bitmap"
+        }
+      ]
+    },
+    "sdkVersion": "3",
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery"
+    ],
+    "uuid": "cb0740aa-4e12-45f0-aab9-cbcb546c5ee4",
+    "watchapp": {
+      "watchface": true
+    }
+  },
+  "version": "1.2.0"
+}
