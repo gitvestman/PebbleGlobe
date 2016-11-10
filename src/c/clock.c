@@ -172,15 +172,6 @@ void update_time() {
     layer_set_hidden((Layer *)s_date_layer, true);
     layer_set_hidden((Layer *)s_date_shadow_layer, true);
   }
-  // Calculate sun position
-  struct tm *gm_time = gmtime(&now);
-#if PBL_PLATFORM_APLITE
-  gm_time->tm_hour += timezone_offset / 60;
-  mktime(gm_time);
-#endif
-  int16_t sunlong = (int16_t)(TRIG_MAX_ANGLE/2 + TRIG_MAX_ANGLE/4 - (int)(gm_time->tm_hour * 2730.6 + gm_time->tm_min * 45.5));
-  int16_t sunlat = (int16_t)((cos_lookup((gm_time->tm_yday - 7) * TRIG_MAX_ANGLE / 365))/32) - 0x200;
-  set_sun_position(sunlong, sunlat);
 }
 
 void destroy_time() {

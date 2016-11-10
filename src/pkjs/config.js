@@ -1,7 +1,7 @@
 module.exports = [
   {
     "type": "heading",
-    "defaultValue": "PebblGlobe Configuration"
+    "defaultValue": "Pokeball Configuration"
   },
   {
     "type": "text",

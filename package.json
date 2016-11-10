@@ -3,20 +3,16 @@
   "dependencies": {
     "pebble-clay": "^1.0.2"
   },
-  "keywords": [],
-  "name": "globe",
+  "keywords": ["pokemon"],
+  "name": "pokeball",
   "pebble": {
     "capabilities": [
-      "location",
       "configurable",
       "health"
     ],
-    "displayName": "Globe",
+    "displayName": "Pokeball",
     "enableMultiJS": true,
     "messageKeys": [
-      "KEY_LONGITUDE",
-      "KEY_LATITUDE",
-      "KEY_TIMEZONE",
       "ShowDate",
       "Inverted",
       "ShowHealth",
@@ -33,7 +29,7 @@
           "type": "bitmap"
         },
         {
-          "file": "images/earth_place_dither180_bw.png",
+          "file": "images/pokeball.png",
           "name": "IMAGE_GLOBE",
           "type": "bitmap"
         }
@@ -47,10 +43,10 @@
       "diorite",
       "emery"
     ],
-    "uuid": "1ea8f949-3052-490d-8258-cdd227476e06",
+    "uuid": "4096accd-3466-419f-acae-ef6fe0793def",
     "watchapp": {
       "watchface": true
     }
   },
-  "version": "1.17.0"
+  "version": "1.0.0"
 }

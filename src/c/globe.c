@@ -22,8 +22,8 @@ static int8_t maxgloberadius = 60;
 static int8_t globeradius = 60;
 #endif
 static uint_fast8_t globecenterx, globecentery;
-static uint16_t globelong = 90;
-static int globelat = 0xF000;
+static uint16_t globelong = 0x4000;
+static int globelat = 0xff00;
 static int xres = 0;
 static int yres = 0;
 static int sunlong = 0;
@@ -34,31 +34,13 @@ static bool gpsposition = 0;
 bool animating = true;
 bool firstframe = true;
 
-static void update_animation_parameters();
-
-void set_sun_position(uint16_t longitude, int16_t latitude) {
-  sunlong = longitude;
-  sunlat = latitude;
-  //APP_LOG(APP_LOG_LEVEL_INFO, "set_sun_position: sunlong %d, sunlat %d", sunlong, sunlat);
-  if (animating) {
-    update_animation_parameters();
-  } else {
-    layer_mark_dirty(s_simple_bg_layer);
-  }
-  gpsposition = !gpsposition;
-}
-
 static void bg_update_proc(Layer *layer, GContext *ctx) {
   if (!animating) {
-    globelong = sunlong;
-    globelat = sunlat;
+    globelat -= 128 * animation_direction;
+    globelong += 64 * animation_direction;
   }
 
   ball_update_proc(globe, layer, ctx, globelat, globelong);
-
-  if (currentlong != 0 && gpsposition) {
-    draw_gps_position(globe, layer, ctx, globelat, globelong, currentlong, currentlat);
-  }
 }
 
 static int longitude_start = 0;
@@ -71,17 +53,13 @@ static Animation* s_globe_animation;
 
 static void anim_started_handler(Animation* anim, void* context) {
   longitude_start = globelong;
-  longitude_length = abs(sunlong - globelong) + FIXED_360_DEG;
+  longitude_length = FIXED_360_DEG;
   latitude_start = globelat;
   latitude_length = sunlat - globelat;
   animating = true;
   firstframe = true;
   animation_count = 0;
   tick_timer_service_unsubscribe();
-}
-
-static void update_animation_parameters() {
-  longitude_length = abs(sunlong - longitude_start) + FIXED_360_DEG;
 }
 
 static void anim_stopped_handler(Animation* anim, bool finished, void* context) {

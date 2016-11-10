@@ -28,22 +28,6 @@ static void prv_save_settings() {
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
-  // Longitude
-  Tuple *longitude_t = dict_find(iterator, MESSAGE_KEY_KEY_LONGITUDE);
-  if (longitude_t) {
-    currentlong = TRIG_MAX_ANGLE / 4 + TRIG_MAX_ANGLE * longitude_t->value->int32 / 360;
-  }
-  // Latidute
-  Tuple *latitude_t = dict_find(iterator, MESSAGE_KEY_KEY_LATITUDE);
-  if (latitude_t) {
-    currentlat = TRIG_MAX_ANGLE / 2 - (TRIG_MAX_ANGLE / 4 - TRIG_MAX_ANGLE  * latitude_t->value->int32 / 360);
-  }
-  // timezone
-  Tuple *timezone_t = dict_find(iterator, MESSAGE_KEY_KEY_TIMEZONE);
-  if (timezone_t) {
-    timezone_offset = timezone_t->value->int32;
-  }
-
   // Inverted
   Tuple *inverted_t = dict_find(iterator, MESSAGE_KEY_Inverted);
   if (inverted_t) {
