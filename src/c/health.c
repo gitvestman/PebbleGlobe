@@ -106,11 +106,6 @@ void update_health()
     int stepsx = bounds.size.w - PBL_IF_ROUND_ELSE(41, 31);
     int sleepx = PBL_IF_ROUND_ELSE(11, 1);
     int stepsy = bounds.size.h/2 - bounds.size.h/4 + PBL_IF_ROUND_ELSE(5, 0);
-
-    if (app_config.center)
-    {
-        stepsy = bounds.size.h/2 - bounds.size.h/4 - PBL_IF_ROUND_ELSE(-5, 10);
-    }
     int sleepy = stepsy;
 
     // Move textlayers
@@ -149,7 +144,7 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     if ((animating && !firstframe) || !grect_equal(&bounds, &unobstructed_bounds))
       return; // Don't draw graphs when quickview is enabled or animating
 
-    int maxstepsangle = PBL_IF_ROUND_ELSE(140, app_config.center ? 140 : 130);
+    int maxstepsangle = PBL_IF_ROUND_ELSE(140, 130);
     int minstepsangle = PBL_IF_ROUND_ELSE(80, 70);
     int radialwidth = 6;
     #ifdef PBL_PLATFORM_EMERY
@@ -161,8 +156,6 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
     GRect frame = grect_inset(bounds, GEdgeInsets(15, 15, 15, 15));
     #else
     GRect frame = grect_inset(bounds, GEdgeInsets(21, 1, 1, 1));
-    if (app_config.center)
-        frame = grect_inset(bounds, GEdgeInsets(1, 1, 1, 1));
     #endif
 
     if (steps > 0 && stepsavg > 0) {

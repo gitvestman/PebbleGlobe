@@ -106,7 +106,7 @@ static void set_globe_size(GRect bounds) {
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
   #ifdef PBL_RECT
-  if (globecentery > 60 && !app_config.center) globecentery += 10;
+  if (globecentery > 60) globecentery += 10;
   #endif
   APP_LOG(APP_LOG_LEVEL_INFO, "Globecentery %d", globecentery);
   xres = bounds.size.w;

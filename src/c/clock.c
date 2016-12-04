@@ -66,8 +66,8 @@ void clock_unobstructed_did_change(void *context) {
 
 static void set_colors() {
   GColor background = GColorClear;
-  GColor shadowcolor = app_config.inverted || app_config.center ? GColorWhite : GColorBlack;
-  GColor textcolor = app_config.inverted || app_config.center ? COLOR_FALLBACK(GColorDukeBlue , GColorBlack) : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
+  GColor shadowcolor = app_config.inverted ? GColorWhite : GColorBlack;
+  GColor textcolor = app_config.inverted ? COLOR_FALLBACK(GColorDukeBlue , GColorBlack) : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
 
   text_layer_set_background_color(s_time_layer, background);
   text_layer_set_text_color(s_time_layer, textcolor);
@@ -177,7 +177,7 @@ void update_time() {
   if (app_config.center)
   {
     timex = globecenterx - 65;
-    timey = globecentery - 25;
+    timey = defaulttimey;
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
     text_layer_set_text_alignment(s_time_shadow_layer, GTextAlignmentCenter);    
   }
