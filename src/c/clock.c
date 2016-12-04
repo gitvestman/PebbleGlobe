@@ -3,6 +3,8 @@
 #include "message.h"
 #include "globe.h"
 
+extern uint_fast8_t globecenterx, globecentery;
+
 static Layer *s_window_layer;
 static TextLayer *s_time_layer;
 static TextLayer *s_date_layer;
@@ -15,11 +17,15 @@ static GFont s_date_bold_font;
 static long tick_count = 0;
 
 #ifdef PBL_ROUND
+static int defaulttimex = 25;
+static int defaulttimey = 10;
 static int timex = 25;
 static int timey = 10;
 static int datenx = -170;
 static int dateny = -38;
 #else
+static int defaulttimex = 2;
+static int defaulttimey = 0;
 static int timex = 2;
 static int timey = 0;
 static int datenx = -120;
@@ -95,6 +101,15 @@ void init_time(Window *window) {
   int datex = bounds.size.w + datenx;
   int datey = bounds.size.h + dateny;
 
+  if (app_config.center)
+  {
+    timex = globecenterx - 65;
+    timey = globecentery - 24;
+  } else {
+    timex = defaulttimex;
+    timey = defaulttimey;
+  }
+
   // Create time textlayer
   s_time_layer = text_layer_create(GRect(timex, timey, 130, 45));
 
@@ -158,6 +173,24 @@ void update_time() {
   // Display the time
   text_layer_set_text(s_time_layer, timebuffer);
   text_layer_set_text(s_time_shadow_layer, timeshadowbuffer);
+
+  if (app_config.center)
+  {
+    timex = globecenterx - 65;
+    timey = globecentery - 25;
+    text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
+    text_layer_set_text_alignment(s_time_shadow_layer, GTextAlignmentCenter);    
+  }
+  else
+  {
+    timex = defaulttimex;
+    timey = defaulttimey;
+    text_layer_set_text_alignment(s_time_layer, GTextAlignmentLeft);
+    text_layer_set_text_alignment(s_time_shadow_layer, GTextAlignmentLeft);    
+  }
+  // Move time textlayers
+  layer_set_frame((Layer *)s_time_layer, GRect(timex, timey, 130, 45));
+  layer_set_frame((Layer *)s_time_shadow_layer, GRect(timex - 2,timey + 2,130,45));
 
   if (app_config.showDate) {
     layer_set_hidden((Layer *)s_date_layer, false);

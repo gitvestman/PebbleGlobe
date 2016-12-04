@@ -18,7 +18,8 @@
       "ShowHealth",
       "Animations",
       "Bold",
-      "ShowBattery"
+      "ShowBattery",
+      "Center"
     ],
     "projectType": "native",
     "resources": {

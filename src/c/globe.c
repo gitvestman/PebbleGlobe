@@ -21,7 +21,7 @@ static int8_t globeradius = 75;
 static int8_t maxgloberadius = 60;
 static int8_t globeradius = 60;
 #endif
-static uint_fast8_t globecenterx, globecentery;
+uint_fast8_t globecenterx, globecentery;
 static uint16_t globelong = 0x4000;
 static int globelat = 0xff00;
 static int xres = 0;
@@ -106,8 +106,9 @@ static void set_globe_size(GRect bounds) {
   globecenterx = bounds.size.w / 2;
   globecentery = bounds.size.h / 2;
   #ifdef PBL_RECT
-  if (globecentery > 60) globecentery += 10;
+  if (globecentery > 60 && !app_config.center) globecentery += 10;
   #endif
+  APP_LOG(APP_LOG_LEVEL_INFO, "Globecentery %d", globecentery);
   xres = bounds.size.w;
   yres = bounds.size.h;
 }
