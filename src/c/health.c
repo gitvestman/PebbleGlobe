@@ -109,7 +109,7 @@ void update_health()
 
     if (app_config.center)
     {
-        stepsy = bounds.size.h/2 - bounds.size.h/4 - 10;
+        stepsy = bounds.size.h/2 - bounds.size.h/4 - PBL_IF_ROUND_ELSE(-5, 10);
     }
     int sleepy = stepsy;
 
