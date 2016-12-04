@@ -1,13 +1,15 @@
 #include <pebble.h>
 #include "message.h"
 #include "clock.h"
+#include "globe.h"
+#include "health.h"
 
 Window* window_ref;
 Layer* root_layer;
 int currentlong;
 int currentlat;
 int16_t timezone_offset;
-Config app_config = { .showDate = true, .showHealth = true, .animations = true, .inverted = false, .bold = false, .showBattery = true };
+Config app_config = { .showDate = true, .showHealth = true, .animations = true, .inverted = false, .bold = false, .showBattery = true, .center = false };
 GColor background_color;
 #define SETTINGS_KEY 1
 
@@ -16,7 +18,11 @@ static void prv_load_settings() {
   // Read settings from persistent storage, if they exist
   persist_read_data(SETTINGS_KEY, &app_config, sizeof(app_config));
   background_color = app_config.inverted ? GColorWhite : GColorBlack;
+  update_globe();
   update_time();
+  #ifdef PBL_HEALTH
+  update_health();
+  #endif
   layer_mark_dirty(root_layer);
 }
 
@@ -56,6 +62,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
     app_config.bold = bold_t->value->int32 == 1;
   }
 
+  // Center
+  Tuple *center_t = dict_find(iterator, MESSAGE_KEY_Center);
+  if (center_t) {
+    app_config.center = center_t->value->int32 == 1;
+  }
+
   // ShowDate
   Tuple *showDate_t = dict_find(iterator, MESSAGE_KEY_ShowDate);
   if (showDate_t) {
@@ -82,7 +94,11 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
   // Save the new settings to persistent storage
   prv_save_settings();
+  update_globe();
   update_time();
+  #ifdef PBL_HEALTH
+  update_health();
+  #endif
   layer_mark_dirty(root_layer);
 }
 

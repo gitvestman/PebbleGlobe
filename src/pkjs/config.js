@@ -25,6 +25,12 @@ module.exports = [
         "messageKey": "Bold",
         "label": "Use Bold Fonts",
         "defaultValue": false
+      },
+      {
+        "type": "toggle",
+        "messageKey": "Center",
+        "label": "Place Time in the Center",
+        "defaultValue": false
       }
     ]
   },
