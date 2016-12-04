@@ -66,8 +66,8 @@ void clock_unobstructed_did_change(void *context) {
 
 static void set_colors() {
   GColor background = GColorClear;
-  GColor shadowcolor = app_config.inverted ? GColorWhite : GColorBlack;
-  GColor textcolor = app_config.inverted ? GColorBlack : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
+  GColor shadowcolor = app_config.inverted || app_config.center ? GColorWhite : GColorBlack;
+  GColor textcolor = app_config.inverted || app_config.center ? COLOR_FALLBACK(GColorDukeBlue , GColorBlack) : COLOR_FALLBACK(GColorPastelYellow , GColorWhite);
 
   text_layer_set_background_color(s_time_layer, background);
   text_layer_set_text_color(s_time_layer, textcolor);
@@ -114,7 +114,7 @@ void init_time(Window *window) {
   s_time_layer = text_layer_create(GRect(timex, timey, 130, 45));
 
   // Create time shadow textlayer
-  s_time_shadow_layer = text_layer_create(GRect(timex - 2,timey + 2,130,45));
+  s_time_shadow_layer = text_layer_create(GRect(timex - 2,timey - 2,130,45));
 
   // Create date textlayer
   s_date_layer = text_layer_create(GRect(datex,datey,118,45));
@@ -190,7 +190,7 @@ void update_time() {
   }
   // Move time textlayers
   layer_set_frame((Layer *)s_time_layer, GRect(timex, timey, 130, 45));
-  layer_set_frame((Layer *)s_time_shadow_layer, GRect(timex - 2,timey + 2,130,45));
+  layer_set_frame((Layer *)s_time_shadow_layer, GRect(timex - 2,timey - 2,130,45));
 
   if (app_config.showDate) {
     layer_set_hidden((Layer *)s_date_layer, false);
