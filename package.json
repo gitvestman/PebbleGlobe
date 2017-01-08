@@ -3,14 +3,14 @@
   "dependencies": {
     "pebble-clay": "^1.0.2"
   },
-  "keywords": ["pokemon"],
-  "name": "pokeball",
+  "keywords": ["soccer", "fotball"],
+  "name": "soccer",
   "pebble": {
     "capabilities": [
       "configurable",
       "health"
     ],
-    "displayName": "Pokeball",
+    "displayName": "Soccer",
     "enableMultiJS": true,
     "messageKeys": [
       "ShowDate",
@@ -44,10 +44,10 @@
       "diorite",
       "emery"
     ],
-    "uuid": "4096accd-3466-419f-acae-ef6fe0793def",
+    "uuid": "F7256693-E580-4573-91E4-1631D3FE8A67",
     "watchapp": {
       "watchface": true
     }
   },
-  "version": "1.1.0"
+  "version": "1.0.0"
 }
