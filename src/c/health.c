@@ -146,10 +146,10 @@ static void health_update_proc(Layer *layer, GContext *ctx) {
 
     int maxstepsangle = PBL_IF_ROUND_ELSE(140, 130);
     int minstepsangle = PBL_IF_ROUND_ELSE(80, 70);
-    int radialwidth = 6;
+    int radialwidth = 8;
     #ifdef PBL_PLATFORM_EMERY
     maxstepsangle = 140;
-    radialwidth = 10;
+    radialwidth = 12;
     #endif
 
     #ifdef PBL_ROUND
