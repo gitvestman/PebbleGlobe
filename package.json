@@ -1,57 +1,83 @@
 {
-  "author": "Vestman.Net",
-  "dependencies": {
-    "pebble-clay": "^1.0.2"
-  },
-  "keywords": [],
-    "name": "BB8",
-  "pebble": {
-    "capabilities": [
-      "configurable",
-      "health"
-    ],
+    "author": "Vestman.Net",
+    "dependencies": {
+        "pebble-clay": "^1.0.4"
+    },
+    "keywords": [],
+    "name": "bb8",
+    "pebble": {
+        "capabilities": [
+            "configurable",
+            "health"
+        ],
         "displayName": "BB8",
-    "enableMultiJS": true,
-    "messageKeys": [
-      "ShowDate",
-      "Inverted",
-      "ShowHealth",
-      "Animations",
-      "Bold",
-      "ShowBattery"
-    ],
-    "projectType": "native",
-    "resources": {
-      "media": [
-        {
-                    "file": "images/BB8.png",
-                    "name": "IMAGE_GLOBE",
-                    "type": "png"
-        },
-        {
-                    "file": "images/BB8-Head.png",
-                    "name": "IMAGE_HEAD",
-                    "type": "png"
+        "enableMultiJS": true,
+        "messageKeys": [
+            "ShowDate",
+            "Inverted",
+            "ShowHealth",
+            "Animations",
+            "Bold",
+            "ShowBattery"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "characterRegex": "[0-9:]",
+                    "file": "fonts/Starjedi.ttf",
+                    "name": "STARJEDI_24",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite",
+                        "emery"
+                    ],
+                    "type": "font"
+                },
+                {
+                    "characterRegex": "[0-9:]",
+                    "file": "fonts/Starjedi.ttf",
+                    "name": "STARJEDI_40",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite",
+                        "emery"
+                    ],
+                    "type": "font"
                 },
                 {
                     "file": "images/globe_bw.png",
                     "name": "IMAGE_ICON",
-          "type": "png"
-        }
-      ]
-    },
-    "sdkVersion": "3",
-    "targetPlatforms": [
-      "aplite",
-      "basalt",
-      "chalk",
-      "diorite",
-      "emery"
-    ],
+                    "type": "png"
+                },
+                {
+                    "file": "images/BB8.png",
+                    "name": "IMAGE_GLOBE",
+                    "type": "png"
+                },
+                {
+                    "file": "images/BB8-Head.png",
+                    "name": "IMAGE_HEAD",
+                    "type": "png"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite",
+            "emery"
+        ],
         "uuid": "9b385b97-a8cd-497a-9be3-3ca62b42d818",
-    "watchapp": {
-      "watchface": true
-    }
-  },
+        "watchapp": {
+            "watchface": true
+        }
+    },
     "version": "1.10.0"
 }

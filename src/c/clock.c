@@ -103,10 +103,18 @@ void init_time(Window *window) {
   int timex2 = bounds.size.w + timedx2;
 
   // Create hour time textlayer
+  #ifdef PBL_PLATFORM_EMERY
+  s_time_layer = text_layer_create(GRect(timex,timey,60,55));
+  #else
   s_time_layer = text_layer_create(GRect(timex,timey,60,45));
+  #endif
 
   // Create second time textlayer
+  #ifdef PBL_PLATFORM_EMERY
+  s_time_second_layer = text_layer_create(GRect(timex2,timey,60,55));
+  #else
   s_time_second_layer = text_layer_create(GRect(timex2,timey,60,45));
+  #endif
 
   // Create date textlayer
   s_date_layer = text_layer_create(GRect(datex,datey,118,45));
@@ -115,12 +123,18 @@ void init_time(Window *window) {
   s_date_shadow_layer = text_layer_create(GRect(datex - 2, datey + 2,118,45));
 
   // Create Fonts
-  s_time_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-  s_time_bold_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
-
+  //s_time_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
+  //s_time_bold_font = fonts_get_system_font(FONT_KEY_LECO_42_NUMBERS);
+  #ifdef PBL_PLATFORM_EMERY
+  s_time_font = fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49);
+  s_time_bold_font = fonts_get_system_font(FONT_KEY_ROBOTO_BOLD_SUBSET_49);
+  #else
+  s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_STARJEDI_40));
+  s_time_bold_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_STARJEDI_40));
+  #endif
   s_date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
   s_date_bold_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-
+  
   text_layer_set_text_alignment(s_time_second_layer, GTextAlignmentRight);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_second_layer));
 
